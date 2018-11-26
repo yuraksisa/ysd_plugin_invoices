@@ -1,0 +1,349 @@
+<%= include('entity-management') %>
+
+<div id="invoice_line_modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="invoiceLineModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <ul class="block-options">
+          <li>
+            <button data-dismiss="modal" type="button"><i class="si si-close"></i></button>
+          </li>
+        </ul>
+        <h3 class="modal-title">Línea de factura</h3>
+      </div>
+      <div class="modal-body">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Renders the element description -->
+<script type="text/tmpl" id="elements_title">
+  <h2 class="entity-title"><%=t.customer_invoices.title%></h2>
+</script>
+
+<!-- Renders the element description -->
+<script type="text/tmpl" id="elements_description">
+<%=t.customer_invoices.description%>
+</script>
+
+<!-- Renders the elements container -->
+<script type="text/tmpl" id="elements_container_template">
+  <table id="elements_table" class="table">
+     <thead class="table-header">
+       <tr>
+         <th class="table-header-title" scope="col" style="width:20%">
+            <%= t.invoices.table.date %>
+         </th>
+         <th class="table-header-title" scope="col" style="width:10%">
+           <%= t.invoices.table.number %>
+         </th>
+         <th class="table-header-title" scope="col" style="width:20%">
+            <%= t.invoices.table.customer %>
+         </th>
+         <th class="table-header-title" scope="col" style="width:20%">
+            <%= t.invoices.table.concept %>
+         </th>
+         <th class="table-header-title" scope="col" style="width:10%">
+            <%= t.invoices.table.total %>
+         </th>
+         <th class="table-header-title" scope="col" style="width:10%">
+            <%= t.invoices.table.invoice_status %>
+         </th>        
+         <th class="table-header-title" scope="col" style="width:10%">
+            <%= t.invoices.table.invoice_type %>
+         </th>                                             
+       </tr>
+     </thead>
+     <tbody id="elements_tbody" class="table-tbody">
+     </tbody>
+  </table>
+</script>
+
+<!-- Renders one element in the elements list view -->
+        
+<script type="text/tmpl" id="elements_list_template">
+    <tr class="table-row" id="element_row_<%%=index%>">
+      <td class="table-cell element-navigation-detail" rel="<%%= index %>">
+        <%%= entity.name %> <%%= entity.date.toString('yyyy-MM-dd') %>
+      </td>
+      <td class="table-cell element-navigation-detail" rel="<%%= index %>">
+        <%%= entity.serie %> <%%= entity.number %>
+      </td>
+      <td class="table-cell element-navigation-detail" rel="<%%= index %>">
+        <%%= entity.customer.name %> <%%= entity.customer.surname %>
+      </td>
+      <td class="table-cell element-navigation-detail" rel="<%%=index%>">
+        <%%= entity.concept %>
+      </td>
+      <td class="table-cell element-navigation-detail" rel="<%%=index%>">
+        <%%= new Number(entity.total).toFixed(2) %>
+      </td>
+      <td class="table-cell element-navigation-detail" rel="<%%=index%>">
+        <%% if (entity.invoice_status == 'draft') { %>
+            <span class="label label-default"><%= t.invoices.status.draft %></span>
+        <%% } else if (entity.invoice_status == 'invoice') { %>
+        	<span class="label label-success"><%= t.invoices.status.invoice %></span>
+        <%% } %> 	
+      </td>  
+      <td class="table-cell element-navigation-detail" rel="<%%=index%>">
+        <%% if (entity.invoice_type == 'invoice') { %>
+          <span class="label label-info"><%= t.invoices.type.invoice %></span>
+        <%% } else if (entity.invoice_type == 'payment') { %>
+          <span class="label label-alert"><%= t.invoices.type.payment %></span>
+        <%% } %>  	
+      </td>                    
+    </tr>
+</script>
+
+<!-- Renders one element in the element view (full detailed) -->
+
+<script type="text/tmpl" id="element_template">
+   
+</script>
+
+<!-- Renders the form to edit an element -->
+
+<script type="text/tmpl" id="element_template_form">
+        <%% if (entity) { %>
+        <div class="row">
+          <div class="col-sm-12 col-md-10 col-md-offset-1">
+            <div class="block ">
+              <div class="block-content">
+                <div class="text-right">
+                  <a href="/admin/invoices/customer-invoices/<%%=entity.id%>.pdf" 
+                     class="btn btn-primary" role="button" target="blank"><%= t.invoices.form.invoicing %></a>
+                  <a href="/admin/invoices/customer-invoices/<%%=entity.id%>.pdf" 
+                     class="btn btn-default" role="button" target="blank"><i class="fa fa-print"></i>&nbsp; <%= t.invoices.form.print %></a> 
+                </div>
+                <br>
+              </div>
+            </div>
+          </div>
+        </div>               	
+        <%% } %>	
+        <div class="row">
+          <div class="col-sm-12 col-md-10 col-md-offset-1">
+            <div class="block ">
+              <div class="block-content block-content-narrow">
+                  <form name="element" class="form-horizontal" method="POST">
+                      <%% if (entity) { %>
+                      <input type="hidden" name="id" value="<%%=entity.id%>"/>
+                      <%% } %>
+                      <div <%% if (entity) { %>class="col-md-6"<%% } else {%>class="col-md-12"<%%}%>>
+	                      <div class="form-group">
+	                         <label class="col-md-2 control-label"><%= t.invoices.form.date.label %></label>
+	                         <div class="col-md-10">
+	                           <input type="text" maxlength="10" id="date" name="date" class="form-control" autocomplete="off" <%% if (entity) {%> value="<%%=entity.date%>" <%%}%>/>
+	                         </div>
+	                      </div>
+	                      <div class="form-group">
+	                         <label class="col-md-2 control-label"><%= t.invoices.form.customer.label %></label>
+	                         <div class="col-md-10">
+	                           <input type="hidden" id="customer_id" name="customer_id" <%% if (entity) { %>value="<%%=entity.customer_id%>"<%%}%>/>
+	                           <input type="text" id="customer" name="customer" class="form-control" autocomplete="off" <%% if (entity) {%> value="<%%=entity.customer.name%> <%%=entity.customer.surname%>" <%%}%>/>
+	                         </div>
+	                      </div>
+	                      <%% if (entity) { %>
+	                      <div class="form-group">
+	                         <label class="col-md-2 control-label"><%= t.invoices.form.customer_document_id.label %></label>
+	                         <div class="col-md-10">
+	                           <input type="text" id="customer_document_id" name="customer_document_id" class="form-control" autocomplete="off" 
+	                              <%% if (entity) {%> value="<%%=entity.customer_document_id%>" <%%}%>/>
+	                         </div>
+	                      </div>	          
+	                      <%% } %>            
+	                      <div class="form-group">
+	                         <label class="col-md-2 control-label"><%= t.invoices.form.reference.label %></label>
+	                         <div class="col-md-10">
+	                           <input type="text" maxlength="10" id="reference" name="reference" class="form-control" <%% if (entity) {%> value="<%%=entity.reference%>" <%%}%>/>
+	                         </div>
+	                      </div>                      
+	                      <div class="form-group">
+	                         <label class="col-md-2 control-label"><%= t.invoices.form.concept.label %></label>
+	                         <div class="col-md-10">
+	                           <textarea rows="7" cols="50" id="concept" name="concept" class="form-control"><%% if (entity) {%><%%=entity.concept%><%%}%></textarea>
+	                         </div>
+	                      </div>                                          
+                      </div>
+                      <%% if (entity) { %>
+                      <div class="col-md-6">
+	                      <div class="form-group">
+	                         <label class="col-md-3 control-label"><%= t.address.street.label %></label>
+	                         <div class="col-md-9">
+	                           <input type="text" maxlength="60" id="customer_address_street" name="customer_address[street]" class="form-control" <%% if (entity && entity.customer_address) {%> value="<%%=entity.customer_address.street%>" <%%}%>/>
+	                         </div>
+	                      </div>
+	                      <div class="form-group">
+	                         <label class="col-md-3 control-label"><%= t.address.number.label %></label>
+	                         <div class="col-md-9">
+	                           <input type="text" maxlength="10" id="customer_address_number" name="customer_address[number]" class="form-control" <%% if (entity && entity.customer_address) {%> value="<%%=entity.customer_address.number%>" <%%}%>/>
+	                         </div>
+	                      </div>
+	                      <div class="form-group">
+	                         <label class="col-md-3 control-label"><%= t.address.complement.label %></label>
+	                         <div class="col-md-9">
+	                           <input type="text" maxlength="20" id="customer_address_complement" name="customer_address[complement]" class="form-control" <%% if (entity && entity.customer_address) {%> value="<%%=entity.customer_address.complement%>" <%%}%>/>
+	                         </div>
+	                      </div>
+	                      <div class="form-group">
+	                         <label class="col-md-3 control-label"><%= t.address.city.label %></label>
+	                         <div class="col-md-9">
+	                           <input type="text" maxlength="60" id="customer_address_city" name="customer_address[city]" class="form-control" <%% if (entity && entity.customer_address) {%> value="<%%=entity.customer_address.city%>" <%%}%>/>
+	                         </div>
+	                      </div>
+	                      <div class="form-group">
+	                         <label class="col-md-3 control-label"><%= t.address.state.label %></label>
+	                         <div class="col-md-9">
+	                           <input type="text" maxlength="50" id="customer_address_state" name="customer_address[state]" class="form-control" <%% if (entity && entity.customer_address) {%> value="<%%=entity.customer_address.state%>" <%%}%>/>
+	                         </div>
+	                      </div>
+	                      <div class="form-group">
+	                         <label class="col-md-3 control-label"><%= t.address.zip.label %></label>
+	                         <div class="col-md-9">
+	                           <input type="text" maxlength="10" id="customer_address_zip" name="customer_address[zip]" class="form-control" <%% if (entity && entity.customer_address) {%> value="<%%=entity.customer_address.zip%>" <%%}%>/>
+	                         </div>
+	                      </div>
+	                      <div class="form-group">
+	                         <label class="col-md-3 control-label"><%= t.address.country.label %></label>
+	                         <div class="col-md-9">
+	                           <input type="text" maxlength="50" id="customer_address_country" name="customer_address[country]" class="form-control" <%% if (entity && entity.customer_address) {%> value="<%%=entity.customer_address.country%>" <%%}%>/>
+	                         </div>
+	                      </div>                      
+                      </div>
+                      <%% } %>
+	                  <div class="col-md-12">
+	                        <hr>
+	                        <%% if (entity) { %>
+	                          <input type="button" class="pull-right btn btn-sm btn-primary update-entity-button action-button entity-management-button" value="<%=t.entitymanagement.update%>"/>
+	                        <%% } else { %>
+	                          <input type="button" class="pull-right btn btn-sm btn-primary create-entity-button action-button entity-management-button" value="<%=t.entitymanagement.create%>"/>
+	                        <%% } %>
+                      </div>
+                  </form>
+                  <br><br>
+              </div>
+            </div>
+          </div>
+        </div>
+        <%% if (entity) { %>
+        <div class="row">
+          <div class="col-sm-12 col-md-10 col-md-offset-1">
+            <div class="block ">
+              <div class="block-header bg-gray-lighter">
+                <h3 class="block-title"><%= t.invoices.form.lines %></h3>
+              </div>
+              <div class="block-content">
+                <div>
+                    <table class="table table-borderless table-striped table-vcenter">
+                        <thead>
+                            <tr>
+                                <th class="text-left"><%= t.invoices.form.invoice_line_table.concept %></th>
+                                <th style="width: 100px;"><%= t.invoices.form.invoice_line_table.quantity %></th>
+                                <th style="width: 100px;" class="text-center"><%= t.invoices.form.invoice_line_table.vat_percentage %></th>
+                                <th class="text-right" style="width: 10%;"><%= t.invoices.form.invoice_line_table.price_without_taxes %></th>
+                                <th class="text-right" style="width: 10%;"><%= t.invoices.form.invoice_line_table.total_without_taxes %></th>
+                                <th style="width: 150px"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <%% for (var idx=0;idx<entity.items.length; idx++) { %>
+                            <tr>
+                                <td class="text-left"><%%=entity.items[idx].concept%></td>
+                                <td>1</td>
+                                <td class="text-center"><strong><%%=entity.items[idx].vat_percentage%>%</strong></td>
+                                <td class="text-right"><%%=new Number(entity.items[idx].price_without_taxes).toFixed(2)%></td>
+                                <td class="text-right"><%%=new Number(entity.items[idx].total_without_taxes).toFixed(2)%></td>
+                                <td>
+                                    <button type="button" class="btn btn-default modify-order-line-button action-button entity-management-button edit-invoice-item" rel="1746" data-line-idx="<%%=idx%>"><i class="fa fa-pencil"></i></button>
+                                    <button type="button" class="btn btn-default element-action-button action-button entity-management-button delete-invoice-item" 
+                                        data-action-method="DELETE" 
+                                        data-action-url="/api/customer-invoice/<%%=entity.id%>/invoice-item/<%%=entity.items[idx].id%>" 
+                                        data-confirm-message="<%=t.invoices.form.invoice_line_table.confirm_delete_item%>"><i class="fa fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <%% } %> 	
+                            <tr>
+                                <td colspan="4" class="text-right"><strong><%= t.invoices.form.invoice_line_table.subtotal %>:</strong></td>
+                                <td class="text-right"><%%=new Number(entity.subtotal).toFixed(2)%></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-right"><strong><%= t.invoices.form.invoice_line_table.taxes %>:</strong></td>
+                                <td class="text-right"><%%=new Number(entity.total_taxes).toFixed(2)%></td>
+                                <td></td>
+                            </tr>
+                            <tr class="success">
+                                <td colspan="4" class="text-right text-uppercase"><strong><%= t.invoices.form.invoice_line_table.total %>:</strong></td>
+                                <td class="text-right"><strong><%%=new Number(entity.total).toFixed(2)%></strong></td>
+                                <td></td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+                <div>
+                   <button id="new_invoice_line_button" class="btn btn-primary"><%= t.invoices.form.new_invoice_line %></button>
+                </div>
+                <br>   
+              </div>
+            </div>
+          </div>
+        </div>  
+        <%% } %>    
+       
+
+</script>
+
+<script type="text/tmpl" id="invoice_item_tmpl">
+	<form name="invoice_item_form" class="form-horizontal" method="POST">
+	      <%% if (invoice_item) { %>
+	      <input type="hidden" name="id" value="<%%=entity.id%>"/>
+	      <%% } %>
+	      <div class="form-group">
+	         <label class="col-md-2 control-label"><%= t.invoices.form.invoice_item.concept.label %></label>
+	         <div class="col-md-9">
+	           <input type="text" maxlength="100" id="concept" name="concept" class="form-control" autocomplete="off" <%% if (invoice_item) {%> value="<%%=invoice_item.concept%>" <%%}%>/>
+	         </div>
+	      </div>
+
+	      <div class="form-group">
+	         <label class="col-md-2 control-label"><%= t.invoices.form.invoice_item.quantity.label %></label>
+	         <div class="col-md-9">
+	           <input type="text" id="quantity" name="quantity" class="form-control" autocomplete="off" <%% if (invoice_item) {%> value="<%%=invoice_item.quantity%>" <%%}%>/>
+	         </div>
+	      </div>           
+
+		  <div class="form-group">                         
+		    <label class="col-md-2 control-label"><%= t.invoices.form.invoice_item.vat_type.label %></label>
+		    <div class="col-md-9">                           
+			    <select name="vat_type" id="vat_type" class="form-control">
+			       <% @taxes.vat_types.each do |code, description| %>
+			         <option value="<%=code%>" 
+			            <%% if (invoice_item && invoice_item.vat_type == '<%=code%>') {%>selected<%%}%>>
+			            <%=description%>
+			         </option>
+			       <% end %>
+			    </select>                         
+			</div>                       
+		  </div>
+
+
+		  <div class="form-group">
+	         <label class="col-md-2 control-label"><%= t.invoices.form.invoice_item.price_without_taxes.label %></label>
+	         <div class="col-md-9">
+	           <input type="text" id="price_without_taxes" name="price_without_taxes" class="form-control" autocomplete="off" <%% if (invoice_item) {%> value="<%%=invoice_item.price_without_taxes%>" <%%}%>/>
+	         </div>
+	      </div>  
+
+	      <div class="form-group">
+	        <div class="col-md-9 col-md-offset-2">
+	            <%% if (invoice_item) { %>
+	              <input id="update_invoice_item" type="button" class="btn btn-sm btn-primary" value="<%=t.entitymanagement.update%>"/>
+	            <%% } else { %>
+	              <input id="create_invoice_item" type="button" class="btn btn-sm btn-primary" value="<%=t.entitymanagement.create%>"/>
+	            <%% } %>
+	        </div>
+	      </div>
+	</form>
+</script>

@@ -1,0 +1,128 @@
+<div class="top-navigation-bar">
+  <h2 class="entity-title">New vendor invoice</h2>
+</div>
+<div class="admin_content_wrapper"  style="background-color: #f5f5f5; margin: 0">
+
+  <div data-alerts="alerts" data-titles="{'success':'<%=t.entitymanagement.success%>','warning':'<%=t.entitymanagement.warning%>','error':'<%=t.entitymanagement.error%>'}" data-fade="10000"></div>
+
+  <div id="content">
+    <br>
+    <div class="row">	
+      <div class="col-sm-12 col-md-10 col-md-offset-1">
+        <div class="block ">
+          <div class="block-header bg-gray-lighter">
+            <h3 class="block-title">Summary</h3>
+          </div>
+          <div class="block-content block-content-narrow">
+			<form name="simple_vendor_invoice_form" class="form-horizontal">
+
+		      <div class="form-group">
+		        <label class="col-xs-10" for="supplier_id">Supplier</label>
+		        <div class="col-xs-10">
+		          <input class="form-control" type="text" id="supplier_id" name="supplier_id" placeholder="Supplier" autocomplete="off">
+                </div>
+		        <div class="col-xs-2">  
+		          <a id="new_supplier_link" href="#">New supplier</a>
+		        </div>
+		      </div>
+
+		      <div class="form-group">
+		        <label class="col-xs-10" for="concept">Concept</label>
+		        <div class="col-xs-10">
+		          <input class="form-control" type="text" id="concept" name="concept" placeholder="Concept" autocomplete="off">
+		        </div>
+		      </div>
+
+		      <div class="form-group">
+		        <label class="col-xs-10" for="vat_type">VAT Type</label>
+		        <div class="col-xs-10">
+		          <input class="form-control" type="text" id="vat_type" name="vat_type" placeholder="VAT type" autocomplete="off">
+		        </div>
+		      </div>
+
+		      <div class="form-group">
+		        <label class="col-xs-10" for="price_without_taxes">Price without taxes</label>
+		        <div class="col-xs-10">
+		          <input class="form-control" type="text" id="price_without_taxes" name="price_without_taxes" placeholder="Price without taxes" autocomplete="off">
+		        </div>
+		      </div>
+
+		      <div class="form-group">
+		        <div class="col-xs-10">
+		          <button id="create" class="btn btn-sm btn-primary pull-right" type="button">
+		          	<i class="fa fa-arrow-right push-5-r"></i> <%=t.entitymanagement.create%>
+		          </button>
+		        </div>
+		      </div>          
+			</form>
+		  </div>
+		</div>  	
+	  </div>	
+	</div>  
+  </div>	
+</div>	
+
+<!-- ========================================= -->
+<!--         Translation modal                 -->
+<!-- ========================================= -->
+<div class="modal fade" id="new_supplier_modal" tabindex="-1" role="dialog" aria-labelledby="newSupplierModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <ul class="block-options">
+          <li>
+            <button data-dismiss="modal" type="button"><i class="si si-close"></i></button>
+          </li>
+        </ul>
+        <h3 class="modal-title">New Supplier</h3>
+      </div>
+      <div class="modal-body">
+            <form name="simple_vendor_invoice_form" class="form-horizontal">
+
+                <div class="form-group">
+                  <label class="col-xs-10" for="company_name">Company name</label>
+                  <div class="col-xs-10">
+                    <input class="form-control" type="text" id="company_name" name="company_name" placeholder="Company name" autocomplete="off">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="col-xs-10" for="document_id">Document Id</label>
+                  <div class="col-xs-10">
+                    <input class="form-control" type="text" id="document_id" name="document_id" placeholder="Document Id" autocomplete="off">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="col-xs-10" for="email">Email</label>
+                  <div class="col-xs-10">
+                    <input class="form-control" type="text" id="email" name="email" placeholder="Email" autocomplete="off">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="col-xs-10" for="phone_number">Phone number</label>
+                  <div class="col-xs-10">
+                    <input class="form-control" type="text" id="phone_number" name="phone_number" placeholder="Phone number" autocomplete="off">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="col-xs-10" for="mobile_phone">Alternative phone number</label>
+                  <div class="col-xs-10">
+                    <input class="form-control" type="text" id="mobile_phone" name="mobile_phone" placeholder="Alternative phone number" autocomplete="off">
+                  </div>
+                </div>                
+
+                <div class="form-group">
+                  <div class="col-xs-10">
+                    <button id="create" class="btn btn-sm btn-primary pull-right" type="button">
+                      <i class="fa fa-arrow-right push-5-r"></i> <%=t.entitymanagement.create%>
+                    </button>
+                  </div>
+                </div>          
+            </form>      	
+      </div>
+    </div>
+  </div>
+</div>

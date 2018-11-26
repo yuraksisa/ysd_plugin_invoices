@@ -1,0 +1,81 @@
+invoices:
+  table:
+    date: Fecha
+    number: Número
+    contact: Contacto
+    customer: Cliente
+    concept: Concepto
+    total: Total
+    invoice_status: Estado
+    invoice_type: Tipo
+  form:
+    invoicing: Facturar
+    print: Imprimir
+    lines: Líneas de la factura
+    date:
+      label: Fecha
+    customer:
+      label: Cliente
+    customer_document_id:
+      label: NIF/CIF      
+    concept:
+      label: Concepto    
+    reference: 
+      label: Referencia
+    invoice_line_table:
+      concept: Concepto
+      quantity: Cantidad
+      vat_type: Tipo de IVA
+      vat_percentage: "% IVA"
+      price_without_taxes: Precio
+      total_without_taxes: Total
+      subtotal: Subtotal
+      taxes: Impuestos 
+      total: Total
+      confirm_delete_item: ¿Está seguro que desea eliminar la línea de factura?  
+    new_invoice_line: Nueva línea de factura
+    invoice_item:
+      concept:
+        label: Concepto
+      quantity:
+        label: Cantidad    
+      vat_type:
+        label: Tipo de impuesto
+      price_without_taxes:
+        label: Precio (sin impuestos)
+    create_invoice_item_error: Error añadiendo línea de factura    
+    update_invoice_item_error: Error actualizando línea de factura    
+  pdf:
+    invoice_number: Nº de factura
+    date: Fecha
+    reference: Referencia
+    customer: Cliente
+    document_id: CIF/NIF
+    rectificative: Rectificativa
+    table:
+      concept: Concepto
+      quantity: Cantidad
+      price: Precio
+      vat_percent: "%IVA"
+      total: Total
+    subtotal: Subtotal
+    taxes: Impuestos
+    total: Total
+  status:
+    draft: Borrador
+    invoice: Facturada
+  type:
+    invoice: Factura
+    payment: Abono    
+customer_invoices:
+  title: Facturas de cliente
+  description: Facturas de cliente
+taxes:
+  vat_standard: IVA estándar
+  vat_reduced: IVA reducido
+  vat_reduced_2: IVA reducido 2
+  vat_reduced_3: IVA reducido 3
+  vat_zero: IVA cero
+invoice_settings:
+  title: Facturación
+  logo: Logo    

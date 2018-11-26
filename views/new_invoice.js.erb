@@ -1,0 +1,56 @@
+require(['jquery','jquery.validate','jquery.formparams','json2'], 
+        function($) {
+
+	simpleVendorInvoiceModel = {
+
+       createSupplier: function() {
+
+       },
+
+       createSimpleVendorInvoice: function() {
+       	
+       } 
+
+	};
+
+	simpleVendorInvoiceController = {
+
+       newSupplierClick: function() {
+
+       	  simpleVendorInvoiceView.showNewSupplier();
+
+       }
+
+	};
+
+	simpleVendorInvoiceView = {
+
+		init: function() {
+          this.setupEvents();
+		},
+
+		setupEvents: function() {
+          $('#new_supplier_link').bind('click', function(){
+             simpleVendorInvoiceController.newSupplierClick();
+          });
+		},
+
+		showNewSupplier: function() { /* Show the new supplier form */
+/*
+	      $.ajax({url: '/admin/suppliers/new-simple?layout=no', dataType: 'text'}).done(function(html) {
+	        var dom = $('<html />').prop('innerHTML', html);
+	        $('#new_supplier_modal .modal-body').html(dom.find('body .admin_content_wrapper'));
+	        $('head').append(dom.find('script:not([src])'));
+	        $('#new_supplier_modal').modal('show');
+	      });
+*/
+          $('#new_supplier_modal').modal('show');	      
+	    }
+
+
+	};
+
+	simpleVendorInvoiceView.init();
+
+
+});
