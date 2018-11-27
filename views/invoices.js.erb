@@ -57,6 +57,11 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
         }
       });      
 
+      // New customer
+      $('#new_customer_button').bind('click', function() {
+        invoicesManagement.controller.newCustomerButtonClick();
+      });
+
       // New invoice item
       $('#new_invoice_line_button').bind('click', function(){
       	invoicesManagement.controller.newInvoiceLineButtonClick();
@@ -145,6 +150,10 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
     },
 
     controller: {
+
+    	newCustomerButtonClick: function() {
+    		$('#new_customer_modal').modal('show');
+    	},
 
     	newInvoiceLineButtonClick: function() {
     	   var html = tmpl('invoice_item_tmpl')({invoice_item: null});

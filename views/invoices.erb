@@ -1,5 +1,23 @@
 <%= include('entity-management') %>
 
+<div id="new_customer_modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="newCustomerModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <ul class="block-options">
+          <li>
+            <button data-dismiss="modal" type="button"><i class="si si-close"></i></button>
+          </li>
+        </ul>
+        <h3 class="modal-title">Nuevo cliente</h3>
+      </div>
+      <div class="modal-body">
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <div id="invoice_line_modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="invoiceLineModalLabel">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
@@ -27,12 +45,28 @@
 <%=t.customer_invoices.description%>
 </script>
 
+<!-- Renders the search -->
+<script type="text/tmpl" id="elements_search">
+  <form name="contents_search" id="contents_search" style="overflow:visible" class="form-inline">
+     <div class="form-row">
+       <input type="text" name="search" class="search-entity-input form-control"
+              maxlength="60" size="20" placeholder="<%=t.entitymanagement.search%>"/>
+       <button class="btn btn-primary search-entity-button" type="button"><i class="si si-magnifier"></i></button>
+       <select name="invoice_status" class="search-entity-control form-control">
+         <option value="all">Todas</option>
+         <option value="draft">Borradores</option>
+         <option value="invoice">Facturas emitidas</option>
+       </select>
+     </div>
+  </form>
+</script>
+
 <!-- Renders the elements container -->
 <script type="text/tmpl" id="elements_container_template">
-  <table id="elements_table" class="table">
+  <table id="elements_table" class="table table-striped">
      <thead class="table-header">
        <tr>
-         <th class="table-header-title" scope="col" style="width:20%">
+         <th class="table-header-title" scope="col" style="width:10%">
             <%= t.invoices.table.date %>
          </th>
          <th class="table-header-title" scope="col" style="width:10%">
@@ -41,7 +75,7 @@
          <th class="table-header-title" scope="col" style="width:20%">
             <%= t.invoices.table.customer %>
          </th>
-         <th class="table-header-title" scope="col" style="width:20%">
+         <th class="table-header-title" scope="col" style="width:30%">
             <%= t.invoices.table.concept %>
          </th>
          <th class="table-header-title" scope="col" style="width:10%">
@@ -105,26 +139,21 @@
 <!-- Renders the form to edit an element -->
 
 <script type="text/tmpl" id="element_template_form">
-        <%% if (entity) { %>
         <div class="row">
           <div class="col-sm-12 col-md-10 col-md-offset-1">
             <div class="block ">
-              <div class="block-content">
-                <div class="text-right">
+              <%% if (entity) { %>
+              <div class="block-header bg-gray-lighter">
+                  <h3 class="block-title pull-left" style="position:relative; top: 5px"><%% if (entity.invoice_status == 'draft') {%>#<%= t.invoices.status.draft %><%%}else{%>#1234<%%}%></h3>
+                  <div class="pull-right">
                   <a href="/admin/invoices/customer-invoices/<%%=entity.id%>.pdf" 
-                     class="btn btn-primary" role="button" target="blank"><%= t.invoices.form.invoicing %></a>
+                     class="btn btn-success" role="button" target="blank"><%= t.invoices.form.invoicing %></a>
                   <a href="/admin/invoices/customer-invoices/<%%=entity.id%>.pdf" 
                      class="btn btn-default" role="button" target="blank"><i class="fa fa-print"></i>&nbsp; <%= t.invoices.form.print %></a> 
-                </div>
-                <br>
-              </div>
-            </div>
-          </div>
-        </div>               	
-        <%% } %>	
-        <div class="row">
-          <div class="col-sm-12 col-md-10 col-md-offset-1">
-            <div class="block ">
+                  </div>   
+                </h3>
+              </div>     
+              <%% } %>         
               <div class="block-content block-content-narrow">
                   <form name="element" class="form-horizontal" method="POST">
                       <%% if (entity) { %>
@@ -139,9 +168,12 @@
 	                      </div>
 	                      <div class="form-group">
 	                         <label class="col-md-2 control-label"><%= t.invoices.form.customer.label %></label>
-	                         <div class="col-md-10">
+	                         <div class="col-md-7">
 	                           <input type="hidden" id="customer_id" name="customer_id" <%% if (entity) { %>value="<%%=entity.customer_id%>"<%%}%>/>
 	                           <input type="text" id="customer" name="customer" class="form-control" autocomplete="off" <%% if (entity) {%> value="<%%=entity.customer.name%> <%%=entity.customer.surname%>" <%%}%>/>
+	                         </div>
+	                         <div class="col-md-3">
+	                           <a id="new_customer_button" href="#" class="pull-right" style="position: relative; top: 5px"><%= t.invoices.form.new_customer %></a>
 	                         </div>
 	                      </div>
 	                      <%% if (entity) { %>
@@ -301,21 +333,21 @@
 	      <input type="hidden" name="id" value="<%%=entity.id%>"/>
 	      <%% } %>
 	      <div class="form-group">
-	         <label class="col-md-2 control-label"><%= t.invoices.form.invoice_item.concept.label %></label>
+	         <label class="col-md-3 control-label"><%= t.invoices.form.invoice_item.concept.label %></label>
 	         <div class="col-md-9">
 	           <input type="text" maxlength="100" id="concept" name="concept" class="form-control" autocomplete="off" <%% if (invoice_item) {%> value="<%%=invoice_item.concept%>" <%%}%>/>
 	         </div>
 	      </div>
 
 	      <div class="form-group">
-	         <label class="col-md-2 control-label"><%= t.invoices.form.invoice_item.quantity.label %></label>
+	         <label class="col-md-3 control-label"><%= t.invoices.form.invoice_item.quantity.label %></label>
 	         <div class="col-md-9">
 	           <input type="text" id="quantity" name="quantity" class="form-control" autocomplete="off" <%% if (invoice_item) {%> value="<%%=invoice_item.quantity%>" <%%}%>/>
 	         </div>
 	      </div>           
 
 		  <div class="form-group">                         
-		    <label class="col-md-2 control-label"><%= t.invoices.form.invoice_item.vat_type.label %></label>
+		    <label class="col-md-3 control-label"><%= t.invoices.form.invoice_item.vat_type.label %></label>
 		    <div class="col-md-9">                           
 			    <select name="vat_type" id="vat_type" class="form-control">
 			       <% @taxes.vat_types.each do |code, description| %>
@@ -330,14 +362,14 @@
 
 
 		  <div class="form-group">
-	         <label class="col-md-2 control-label"><%= t.invoices.form.invoice_item.price_without_taxes.label %></label>
+	         <label class="col-md-3 control-label"><%= t.invoices.form.invoice_item.price_without_taxes.label %></label>
 	         <div class="col-md-9">
 	           <input type="text" id="price_without_taxes" name="price_without_taxes" class="form-control" autocomplete="off" <%% if (invoice_item) {%> value="<%%=invoice_item.price_without_taxes%>" <%%}%>/>
 	         </div>
 	      </div>  
 
 	      <div class="form-group">
-	        <div class="col-md-9 col-md-offset-2">
+	        <div class="col-md-9 col-md-offset-3">
 	            <%% if (invoice_item) { %>
 	              <input id="update_invoice_item" type="button" class="btn btn-sm btn-primary" value="<%=t.entitymanagement.update%>"/>
 	            <%% } else { %>

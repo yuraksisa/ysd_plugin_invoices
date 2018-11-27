@@ -35,6 +35,38 @@ module Yito
         property :invoice_type, Enum[:invoice, :payment], default: :invoice
         property :invoice_status, Enum[:draft, :invoice], default: :draft
 
+        extend Yito::Model::Finder
+
+        before :create do |customer_invoice|
+          # Copy customer data  
+          customer_invoice.copy_customer_data if customer_invoice.customer
+        end            
+
+        # 
+        # Copy customer data into the invoice
+        #
+        def copy_customer_data
+
+            if invoice_status != :invoice
+                if customer
+                    self.customer_full_name = customer.name + ' ' + customer.surname
+                    self.customer_document_id = customer.document_id
+                    if customer.invoice_address
+                        self.customer_address = LocationDataSystem::Address.new if self.customer_address.nil?
+                        self.customer_address.street = customer.invoice_address.street
+                        self.customer_address.number = customer.invoice_address.number
+                        self.customer_address.complement = customer.invoice_address.complement
+                        self.customer_address.city = customer.invoice_address.city
+                        self.customer_address.state = customer.invoice_address.state
+                        self.customer_address.zip = customer.invoice_address.zip
+                        self.customer_address.country = customer.invoice_address.country
+                        self.customer_address.save
+                    end 
+                end   
+            end
+
+        end    
+
         #
         # Add an invoice item
         #
@@ -51,6 +83,7 @@ module Yito
           invoice_item.price_without_taxes = price_without_taxes
           invoice_item.unit_taxes = (invoice_item.price_without_taxes * vat_percentage) / 100.0
           invoice_item.total_without_taxes = invoice_item.price_without_taxes * quantity
+          invoice_item.subtotal = invoice_item.total_without_taxes
           invoice_item.taxes = invoice_item.total_without_taxes * vat_percentage / 100.0
           invoice_item.total = invoice_item.total_without_taxes + invoice_item.taxes
           invoice_item.customer_invoice = self
@@ -79,6 +112,7 @@ module Yito
               invoice_item.price_without_taxes = price_without_taxes
               invoice_item.unit_taxes = (invoice_item.price_without_taxes * vat_percentage) / 100.0
               invoice_item.total_without_taxes = invoice_item.price_without_taxes * quantity
+              invoice_item.subtotal = invoice_item.total_without_taxes
               invoice_item.taxes = invoice_item.total_without_taxes * vat_percentage / 100.0
               invoice_item.total = invoice_item.total_without_taxes + invoice_item.taxes
               invoice_item.customer_invoice = self

@@ -16,6 +16,7 @@ invoices:
       label: Fecha
     customer:
       label: Cliente
+    new_customer: Nuevo cliente  
     customer_document_id:
       label: NIF/CIF      
     concept:

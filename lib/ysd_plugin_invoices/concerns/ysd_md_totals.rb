@@ -11,24 +11,25 @@ module Yito
 	    def self.included(model)
 
            if model.respond_to?(:property)
-	           model.property :total_without_standard, DataMapper::Property::Decimal, precision: 10, scale: 2
-	           model.property :total_without_reduced, DataMapper::Property::Decimal, precision: 10, scale: 2
-	           model.property :total_without_reduced_2, DataMapper::Property::Decimal, precision: 10, scale: 2
-	           model.property :total_without_reduced_3, DataMapper::Property::Decimal, precision: 10, scale: 2
-		       model.property :discount, DataMapper::Property::Decimal, precision: 10, scale: 2
-		       model.property :disount_tp, DataMapper::Property::Decimal, precision: 10, scale: 2
+	           model.property :total_without_taxes_standard, DataMapper::Property::Decimal, precision: 10, scale: 2
+	           model.property :total_without_taxes_reduced, DataMapper::Property::Decimal, precision: 10, scale: 2
+	           model.property :total_without_taxes_reduced_2, DataMapper::Property::Decimal, precision: 10, scale: 2
+	           model.property :total_without_taxes_reduced_3, DataMapper::Property::Decimal, precision: 10, scale: 2
+             model.property :discount_type, DataMapper::Property::Enum[:percent, :amount]
+  		       model.property :discount, DataMapper::Property::Decimal, precision: 10, scale: 2
+  		       model.property :disount_tp, DataMapper::Property::Decimal, precision: 10, scale: 2
 
-		       model.property :vat_standard, DataMapper::Property::Decimal, precision: 10, scale: 2
-		       model.property :taxes_standard, DataMapper::Property::Decimal, precision: 10, scale: 2
-		       model.property :vat_reduced, DataMapper::Property::Decimal, precision: 10, scale: 2
-		       model.property :taxes_reduced, DataMapper::Property::Decimal, precision: 10, scale: 2
-		       model.property :vat_reduced_2, DataMapper::Property::Decimal, precision: 10, scale: 2
-		       model.property :taxes_reduced_2, DataMapper::Property::Decimal, precision: 10, scale: 2
-		       model.property :vat_reduced_3, DataMapper::Property::Decimal, precision: 10, scale: 2
-		       model.property :taxes_reduced_3, DataMapper::Property::Decimal, precision: 10, scale: 2
+  		       model.property :vat_standard, DataMapper::Property::Decimal, precision: 10, scale: 2
+  		       model.property :taxes_standard, DataMapper::Property::Decimal, precision: 10, scale: 2
+  		       model.property :vat_reduced, DataMapper::Property::Decimal, precision: 10, scale: 2
+  		       model.property :taxes_reduced, DataMapper::Property::Decimal, precision: 10, scale: 2
+  		       model.property :vat_reduced_2, DataMapper::Property::Decimal, precision: 10, scale: 2
+  		       model.property :taxes_reduced_2, DataMapper::Property::Decimal, precision: 10, scale: 2
+  		       model.property :vat_reduced_3, DataMapper::Property::Decimal, precision: 10, scale: 2
+  		       model.property :taxes_reduced_3, DataMapper::Property::Decimal, precision: 10, scale: 2
 
-		       model.property :subtotal, DataMapper::Property::Decimal, precision: 10, scale: 2
-		       model.property :total_taxes, DataMapper::Property::Decimal, precision: 10, scale: 2
+  		       model.property :subtotal, DataMapper::Property::Decimal, precision: 10, scale: 2
+  		       model.property :total_taxes, DataMapper::Property::Decimal, precision: 10, scale: 2
 	           model.property :total, DataMapper::Property::Decimal, precision: 10, scale: 2
            end
 
@@ -42,10 +43,10 @@ module Yito
               init_totals
               init_taxes(taxes)
 
-              self.total_without_standard += item_totals.total_without_taxes if item_totals.vat_type == 'standard' 
-              self.total_without_reduced += item_totals.total_without_taxes if item_totals.vat_type == 'reduced'
-              self.total_without_reduced_2 += item_totals.total_without_taxes if item_totals.vat_type == 'reduced_2'
-              self.total_without_reduced_3 += item_totals.total_without_taxes if item_totals.vat_type == 'reduced_3'    
+              self.total_without_taxes_standard += item_totals.total_without_taxes if item_totals.vat_type == 'standard' 
+              self.total_without_taxes_reduced += item_totals.total_without_taxes if item_totals.vat_type == 'reduced'
+              self.total_without_taxes_reduced_2 += item_totals.total_without_taxes if item_totals.vat_type == 'reduced_2'
+              self.total_without_taxes_reduced_3 += item_totals.total_without_taxes if item_totals.vat_type == 'reduced_3'    
               
               self.taxes_standard += item_totals.taxes if item_totals.vat_type == 'standard' 
               self.taxes_reduced += item_totals.taxes if item_totals.vat_type == 'reduced'
@@ -78,10 +79,10 @@ module Yito
               init_totals
               init_taxes(taxes)
 
-              self.total_without_standard -= item_totals.total_without_taxes if item_totals.vat_type == 'standard' 
-              self.total_without_reduced -= item_totals.total_without_taxes if item_totals.vat_type == 'reduced'
-              self.total_without_reduced_2 -= item_totals.total_without_taxes if item_totals.vat_type == 'reduced_2'
-              self.total_without_reduced_3 -= item_totals.total_without_taxes if item_totals.vat_type == 'reduced_3'    
+              self.total_without_taxes_standard -= item_totals.total_without_taxes if item_totals.vat_type == 'standard' 
+              self.total_without_taxes_reduced -= item_totals.total_without_taxes if item_totals.vat_type == 'reduced'
+              self.total_without_taxes_reduced_2 -= item_totals.total_without_taxes if item_totals.vat_type == 'reduced_2'
+              self.total_without_taxes_reduced_3 -= item_totals.total_without_taxes if item_totals.vat_type == 'reduced_3'    
               
               self.taxes_standard -= item_totals.taxes if item_totals.vat_type == 'standard' 
               self.taxes_reduced -= item_totals.taxes if item_totals.vat_type == 'reduced'
@@ -96,17 +97,17 @@ module Yito
 	    private
 
 	    def init_totals
-	    	  self.total_without_standard ||= 0
-              self.total_without_reduced ||= 0
-              self.total_without_reduced_2 ||= 0
-              self.total_without_reduced_3 ||= 0
-              self.taxes_standard ||= 0
-              self.taxes_reduced ||= 0
-              self.taxes_reduced_2 ||= 0
-              self.taxes_reduced_3 ||= 0
-              self.subtotal ||= 0
-              self.total_taxes ||= 0
-              self.total ||= 0
+	    	  self.total_without_taxes_standard ||= 0
+          self.total_without_taxes_reduced ||= 0
+          self.total_without_taxes_reduced_2 ||= 0
+          self.total_without_taxes_reduced_3 ||= 0
+          self.taxes_standard ||= 0
+          self.taxes_reduced ||= 0
+          self.taxes_reduced_2 ||= 0
+          self.taxes_reduced_3 ||= 0
+          self.subtotal ||= 0
+          self.total_taxes ||= 0
+          self.total ||= 0
 	    end
 
 	    def init_taxes(taxes)

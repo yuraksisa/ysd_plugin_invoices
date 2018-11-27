@@ -17,6 +17,10 @@ module Yito
 	        model.property :price_without_taxes, DataMapper::Property::Decimal, precision: 10, scale: 2
 	        model.property :unit_taxes, DataMapper::Property::Decimal, precision: 10, scale: 2
 	        model.property :total_without_taxes, DataMapper::Property::Decimal, precision: 10, scale: 2
+            model.property :discount_type, DataMapper::Property::Enum[:percent, :amount]
+  		    model.property :discount, DataMapper::Property::Decimal, precision: 10, scale: 2
+  		    model.property :disount_tp, DataMapper::Property::Decimal, precision: 10, scale: 2	   
+  		    model.property :subtotal, DataMapper::Property::Decimal, precision: 10, scale: 2     
 	        model.property :taxes, DataMapper::Property::Decimal, precision: 10, scale: 2
 	        model.property :total, DataMapper::Property::Decimal, precision: 10, scale: 2
           end

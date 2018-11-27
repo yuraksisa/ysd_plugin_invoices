@@ -94,9 +94,9 @@ module Yito
                              "%.2f %%" % customer_invoice_item.vat_percentage,
                              "%.2f" % customer_invoice_item.total ]
             end
-            table_data << ["", "", "", "<b>#{YsdPluginInvoices.r18n.t.invoices.pdf.subtotal.upcase}</b>", "%.2f" % customer_invoice.subtotal]
-            table_data << ["", "", "", "<b>#{YsdPluginInvoices.r18n.t.invoices.pdf.taxes.upcase}</b>", "%.2f" % customer_invoice.total_taxes]
-            table_data << ["", "", "", "<b>#{YsdPluginInvoices.r18n.t.invoices.pdf.total.upcase}</b>", "%.2f" % customer_invoice.total]
+            table_data << ["", "", "", "<b>#{YsdPluginInvoices.r18n.t.invoices.pdf.subtotal.upcase}</b>", "%.2f" % (customer_invoice.subtotal || 0)]
+            table_data << ["", "", "", "<b>#{YsdPluginInvoices.r18n.t.invoices.pdf.taxes.upcase}</b>", "%.2f" % (customer_invoice.total_taxes || 0)]
+            table_data << ["", "", "", "<b>#{YsdPluginInvoices.r18n.t.invoices.pdf.total.upcase}</b>", "%.2f" % (customer_invoice.total || 0)]
 
             pdf.move_down 50
             pdf.table(table_data, position: :center, width: 560, cell_style: {inline_format: true}) do |t| 
