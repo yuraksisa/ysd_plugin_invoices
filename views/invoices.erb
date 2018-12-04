@@ -160,6 +160,25 @@
                       <input type="hidden" name="id" value="<%%=entity.id%>"/>
                       <%% } %>
                       <div <%% if (entity) { %>class="col-md-6"<%% } else {%>class="col-md-12"<%%}%>>
+                        <div class="form-group">
+                           <label class="col-md-2 control-label"><%= t.invoices.form.type.label %></label>
+                           <div class="col-md-10">
+                             <select id="invoice_type" name="invoice_type" class="form-control">
+                               <option value="invoice" <%% if (entity && entity.invoice_type == 'invoice') { %>selected<%%}%>><%= t.invoice_type.invoice %></option>
+                               <option value="payment" <%% if (entity && entity.invoice_type == 'payment') { %>selected<%%}%>><%= t.invoice_type.payment %></option>
+                             </select>
+                           </div>
+                        </div> 
+                        <div class="form-group">
+                           <label class="col-md-2 control-label"><%= t.invoices.form.serie.label %></label>
+                           <div class="col-md-10">
+                             <select id="serie" name="serie" class="form-control">
+                               <% @series.each do |serie| %>
+                                 <option value="<%=serie%>" <%% if (entity && entity.serie == '<%=serie%>') { %>selected<%%}%>><%=serie%></option>
+                               <% end %>
+                             </select>
+                           </div>
+                        </div>                      
 	                      <div class="form-group">
 	                         <label class="col-md-2 control-label"><%= t.invoices.form.date.label %></label>
 	                         <div class="col-md-10">

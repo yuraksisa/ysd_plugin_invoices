@@ -41,6 +41,7 @@ module Sinatra
         app.get '/admin/invoices/customer-invoices/?*', :allowed_usergroups => ['booking_manager','staff'] do
 
           locals = {:per_page => 20}
+          @series = SystemConfiguration::Counter.series('customer_invoices')
           @taxes = ::Yito::Model::Invoices::Taxes.first(name: 'taxes.default')
           load_em_page :invoices,
                        :customer_invoices, false, :locals => locals

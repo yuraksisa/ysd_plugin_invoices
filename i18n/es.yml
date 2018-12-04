@@ -12,6 +12,10 @@ invoices:
     invoicing: Facturar
     print: Imprimir
     lines: Líneas de la factura
+    type:
+      label: Tipo
+    serie:
+      label: Serie
     date:
       label: Fecha
     customer:
@@ -71,6 +75,9 @@ invoices:
 customer_invoices:
   title: Facturas de cliente
   description: Facturas de cliente
+invoice_type:
+  invoice: Factura
+  payment: Abono
 taxes:
   vat_standard: IVA estándar
   vat_reduced: IVA reducido
@@ -79,4 +86,7 @@ taxes:
   vat_zero: IVA cero
 invoice_settings:
   title: Facturación
-  logo: Logo    
+  logo: Logo
+  counters:
+    title: Contadores
+    customer_invoices: Facturas clientes    
