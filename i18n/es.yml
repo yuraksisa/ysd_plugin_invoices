@@ -89,4 +89,12 @@ invoice_settings:
   logo: Logo
   counters:
     title: Contadores
-    customer_invoices: Facturas clientes    
+    customer_invoices: Facturas clientes
+invoices_list:
+  table:
+    date: Fecha
+    number: Número
+    concept: Concepto
+    total: Total
+    invoice_status: Estado
+    invoice_type: Tipo        

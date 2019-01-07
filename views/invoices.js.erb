@@ -159,10 +159,11 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
     	   var html = tmpl('invoice_item_tmpl')({invoice_item: null});
       	   $('#invoice_line_modal .modal-body').html(html);
       	   $('#invoice_line_modal').on('shown.bs.modal', function() {
+             $('#price_without_taxes').autoNumeric('init',{aSep:''});  
       	     $('#create_invoice_item').unbind('click');
-	         $('#create_invoice_item').bind('click', function(){
-	           invoicesManagement.controller.createInvoiceItemButtonClick();
-	       	 });
+  	         $('#create_invoice_item').bind('click', function(){
+  	           invoicesManagement.controller.createInvoiceItemButtonClick();
+  	       	 });
            });
            $('#invoice_line_modal').modal('show');
     	},
@@ -172,10 +173,11 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
     	   var html = tmpl('invoice_item_tmpl')({entity: entity, invoice_item: invoice_item});
       	   $('#invoice_line_modal .modal-body').html(html);
       	   $('#invoice_line_modal').on('shown.bs.modal', function() {
+             $('#price_without_taxes').autoNumeric('init',{aSep:''});            
       	     $('#update_invoice_item').unbind('click');
-	         $('#update_invoice_item').bind('click', function(){
-	           invoicesManagement.controller.updateInvoiceItemButtonClick(invoice_item.id);
-	       	 });
+  	         $('#update_invoice_item').bind('click', function(){
+  	           invoicesManagement.controller.updateInvoiceItemButtonClick(invoice_item.id);
+  	       	 });
            });
            $('#invoice_line_modal').modal('show');
     	},

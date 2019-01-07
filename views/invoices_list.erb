@@ -1,0 +1,44 @@
+<div id="page_wrapper">
+  <% if @invoices.size == 0 %>
+    <p class="text-center"><strong><%=t.entitymanagement.no_data%></strong></p>
+  <% else %>
+    <table id="invoices_list_table" class="table table-striped">
+      <thead>
+      <tr>
+        <th><%= t.invoices_list.table.date %></th>
+        <th><%= t.invoices_list.table.number %></th>
+        <th><%= t.invoices_list.table.concept %></th>
+        <th><%= t.invoices_list.table.total %></th>
+        <th><%= t.invoices_list.table.invoice_status %></th>
+        <th><%= t.invoices_list.table.invoice_type %></th>    
+        <th></th>
+      </tr>
+      </thead>
+      <tbody>
+        <% @invoices.each do |invoice| %>
+          <tr>
+             <td><%=invoice.date.strftime('%d-%m-%Y')%></td>
+             <td><%=invoice.serie%> <%=invoice.number%></td>
+             <td><%=invoice.concept%></td>
+             <td><%="%.2f" % invoice.total%></td>
+             <td>
+              <% if invoice.invoice_status == :draft %>
+                <span class="label label-default"><%= t.invoices.status.draft %></span>
+              <% elsif invoice.invoice_status == :invoice %>
+                <span class="label label-success"><%= t.invoices.status.invoice %></span>
+              <% end %>  
+             </td>
+             <td>
+              <% if invoice.invoice_type == :invoice%>
+                <span class="label label-info"><%= t.invoices.type.invoice %></span>
+              <%elsif invoice.invoice_type == :payment%>
+                <span class="label label-alert"><%= t.invoices.type.payment %></span>
+              <%end%>
+             </td>
+             <td></td> 
+          </tr>
+        <% end %>
+      </tbody>
+    </table>  
+  <% end %>  
+</div>

@@ -147,7 +147,7 @@ module Sinatra
              	                                  data_request[:vat_type],
              	                                  @taxes,
              	                                  data_request[:quantity].to_i,
-             	                                  BigDecimal(data_request[:price_without_taxes]))
+             	                                  BigDecimal.new(data_request[:price_without_taxes]))
                content_type :json
                result.to_json
              end  
@@ -171,7 +171,7 @@ module Sinatra
                	                                     data_request[:vat_type],
                	                                     @taxes,
                	                                     data_request[:quantity].to_i,
-               	                                     BigDecimal(data_request[:price_without_taxes]))
+               	                                     BigDecimal.new(data_request[:price_without_taxes]))
                content_type :json
                result.to_json               
              end             

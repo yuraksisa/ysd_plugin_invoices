@@ -72,8 +72,8 @@ module Yito
         #
         def add_invoice_item(concept, vat_type, taxes, quantity, price_without_taxes)
   
-          vat_percentage = taxes.vat_percentage(vat_type)
-
+          vat_percentage = taxes.vat_percentage(vat_type.to_s)
+          p "price_without_taxes: #{price_without_taxes}-#{vat_percentage}-#{vat_type}"
           # Create the invoice item
           invoice_item = CustomerInvoiceItem.new
           invoice_item.concept = concept
@@ -81,11 +81,11 @@ module Yito
           invoice_item.vat_percentage = vat_percentage
           invoice_item.quantity = quantity
           invoice_item.price_without_taxes = price_without_taxes
-          invoice_item.unit_taxes = (invoice_item.price_without_taxes * vat_percentage) / 100.0
-          invoice_item.total_without_taxes = invoice_item.price_without_taxes * quantity
+          invoice_item.unit_taxes = ((invoice_item.price_without_taxes * vat_percentage) / 100.0).round(2)
+          invoice_item.total_without_taxes = (invoice_item.price_without_taxes * quantity).round(2)
           invoice_item.subtotal = invoice_item.total_without_taxes
-          invoice_item.taxes = invoice_item.total_without_taxes * vat_percentage / 100.0
-          invoice_item.total = invoice_item.total_without_taxes + invoice_item.taxes
+          invoice_item.taxes = (invoice_item.total_without_taxes * vat_percentage / 100.0).round(2)
+          invoice_item.total = (invoice_item.total_without_taxes + invoice_item.taxes).round(2)
           invoice_item.customer_invoice = self
           invoice_item.save
           # Update totals
@@ -103,19 +103,21 @@ module Yito
         def update_invoice_item(id, concept, vat_type, taxes, quantity, price_without_taxes)
 
            if invoice_item = CustomerInvoiceItem.get(id)
-              vat_percentage = taxes.vat_percentage(vat_type)
+              vat_percentage = taxes.vat_percentage(vat_type.to_s)
               old_invoice_item = invoice_item.clone
               invoice_item.concept = concept
               invoice_item.vat_type = vat_type
               invoice_item.vat_percentage = vat_percentage
               invoice_item.quantity = quantity
+              p "price_without_taxes: #{price_without_taxes} #{vat_percentage}"
               invoice_item.price_without_taxes = price_without_taxes
-              invoice_item.unit_taxes = (invoice_item.price_without_taxes * vat_percentage) / 100.0
-              invoice_item.total_without_taxes = invoice_item.price_without_taxes * quantity
+              invoice_item.unit_taxes = ((invoice_item.price_without_taxes * vat_percentage) / 100.0).round(2)
+              invoice_item.total_without_taxes = (invoice_item.price_without_taxes * quantity).round(2)
               invoice_item.subtotal = invoice_item.total_without_taxes
-              invoice_item.taxes = invoice_item.total_without_taxes * vat_percentage / 100.0
-              invoice_item.total = invoice_item.total_without_taxes + invoice_item.taxes
+              invoice_item.taxes = ((invoice_item.total_without_taxes * vat_percentage) / 100.0).round(2)
+              invoice_item.total = (invoice_item.total_without_taxes + invoice_item.taxes).round(2)
               invoice_item.customer_invoice = self
+              p "invoice_item:#{invoice_item.valid?}--#{invoice_item.unit_taxes}--#{invoice_item.taxes}--#{invoice_item.errors.full_messages.inspect}"
               invoice_item.save             
               # Update total
               update_item_data(invoice_item, old_invoice_item, taxes)
