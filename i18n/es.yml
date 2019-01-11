@@ -49,7 +49,10 @@ invoices:
       price_without_taxes:
         label: Precio (sin impuestos)
     create_invoice_item_error: Error añadiendo línea de factura    
-    update_invoice_item_error: Error actualizando línea de factura    
+    update_invoice_item_error: Error actualizando línea de factura
+    confirm_generate_bill: ¿Está seguro que desea emitir la factura?
+    bill_generated_successfully: Factura emitida correctamente
+    bill_generation_error: Error emitiendo la factura    
   pdf:
     invoice_number: Nº de factura
     date: Fecha

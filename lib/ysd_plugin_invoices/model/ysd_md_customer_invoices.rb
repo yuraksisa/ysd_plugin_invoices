@@ -68,12 +68,27 @@ module Yito
         end    
 
         #
+        # Generate bill
+        # ---------------------------------------------------------------------
+        #
+        def generate_bill
+
+          if invoice_status == :draft
+            if next_value = SystemConfiguration::Counter.next_value('customer_invoices', self.serie)
+              self.number = next_value
+              self.invoice_status = :invoice
+              self.save
+            end  
+          end  
+
+        end  
+
+        #
         # Add an invoice item
         #
         def add_invoice_item(concept, vat_type, taxes, quantity, price_without_taxes)
   
           vat_percentage = taxes.vat_percentage(vat_type.to_s)
-          p "price_without_taxes: #{price_without_taxes}-#{vat_percentage}-#{vat_type}"
           # Create the invoice item
           invoice_item = CustomerInvoiceItem.new
           invoice_item.concept = concept

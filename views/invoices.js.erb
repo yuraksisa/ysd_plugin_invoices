@@ -67,6 +67,11 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
       	invoicesManagement.controller.newInvoiceLineButtonClick();
       });
 
+      // Generate bill
+      $('#generate_bill_btn').bind('click', function(){
+        invoicesManagement.controller.generateBillButtonClick();
+      });
+
     },
 
     adaptFormData: function(data) {      
@@ -80,77 +85,103 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
   var invoicesManagement = {
 
     model: {
-
         invoice_id: null,
-
-    	add_invoice_item: function() { /** Add invoice item **/
-          var request = $('form[name=invoice_item_form]').formParams(false);
-          var requestJSON = encodeURIComponent(JSON.stringify(request));
-          var url = '/api/customer-invoice/'+this.invoice_id+'/invoice-item';
-
-          YSDGui.lockBackground('#bbb');
-          var unlock = false;
-          $.ajax({
+        generate_bill: function() { /** Generate bill **/
+            var url = '/api/customer-invoice/'+this.invoice_id+'/generate-bill';
+            YSDGui.lockBackground('#bbb');
+            var unlock = false;            
+            $.ajax({
               type: 'POST',
-              url : url,
-              data: requestJSON,
-              dataType : 'json',
-              contentType : 'application/json; charset=utf-8',
-              crossDomain: true,
-              success: function(data, textStatus, jqXHR) {              	
-              	 unlock = true;
-              	 YSDGui.unLockBackground();
-              	 invoicesManager.model.synchronizeCurrentEntity(data);
-                 invoicesManager.model.change_state('entity_updated_successfully');
-              	 invoicesManagement.view.update('added_invoice_item');
+              url: url,
+              contentType: 'application/json; charset=utf-8',
+              success: function(data, textStatus, jqXHR) {
+                unlock = true;
+                YSDGui.unLockBackground();
+                invoicesManager.model.synchronizeCurrentEntity(data);
+                invoicesManager.model.change_state('entity_updated_successfully');                
+                alert('<%=t.invoices.form.bill_generated_successfully%>');
               },
               error: function(data, textStatus, jqXHR) {
-                  alert('<%=t.invoices.form.create_invoice_item_error%>');
+                alert('<%=t.invoices.form.bill_generation_error%>');
               },
               complete: function(jqXHT, textStatus) {
-                  if (!unlock) {
-                      YSDGui.unLockBackground();
-                  }
-              }                    
-    	  });
+                if (!unlock) {
+                    YSDGui.unLockBackground();
+                }
+              }
+            });
         },
+      	add_invoice_item: function() { /** Add invoice item **/
+            var request = $('form[name=invoice_item_form]').formParams(false);
+            var requestJSON = encodeURIComponent(JSON.stringify(request));
+            var url = '/api/customer-invoice/'+this.invoice_id+'/invoice-item';
 
-    	update_invoice_item: function(invoice_item_id) { /** Update invoice item **/
-          var request = $('form[name=invoice_item_form]').formParams(false);
-          var requestJSON = encodeURIComponent(JSON.stringify(request));
-          var url = '/api/customer-invoice/'+this.invoice_id+'/invoice-item/'+invoice_item_id;
+            YSDGui.lockBackground('#bbb');
+            var unlock = false;
+            $.ajax({
+                type: 'POST',
+                url : url,
+                data: requestJSON,
+                dataType : 'json',
+                contentType : 'application/json; charset=utf-8',
+                crossDomain: true,
+                success: function(data, textStatus, jqXHR) {              	
+                	 unlock = true;
+                	 YSDGui.unLockBackground();
+                	 invoicesManager.model.synchronizeCurrentEntity(data);
+                   invoicesManager.model.change_state('entity_updated_successfully');
+                	 invoicesManagement.view.update('added_invoice_item');
+                },
+                error: function(data, textStatus, jqXHR) {
+                    alert('<%=t.invoices.form.create_invoice_item_error%>');
+                },
+                complete: function(jqXHT, textStatus) {
+                    if (!unlock) {
+                        YSDGui.unLockBackground();
+                    }
+                }                    
+      	  });
+        },
+      	update_invoice_item: function(invoice_item_id) { /** Update invoice item **/
+            var request = $('form[name=invoice_item_form]').formParams(false);
+            var requestJSON = encodeURIComponent(JSON.stringify(request));
+            var url = '/api/customer-invoice/'+this.invoice_id+'/invoice-item/'+invoice_item_id;
 
-          YSDGui.lockBackground('#bbb');
-          var unlock = false;
-          $.ajax({
-              type: 'PUT',
-              url : url,
-              data: requestJSON,
-              dataType : 'json',
-              contentType : 'application/json; charset=utf-8',
-              crossDomain: true,
-              success: function(data, textStatus, jqXHR) {              	
-              	 unlock = true;
-              	 YSDGui.unLockBackground();
-              	 invoicesManager.model.synchronizeCurrentEntity(data);
-                 invoicesManager.model.change_state('entity_updated_successfully');
-              	 invoicesManagement.view.update('updated_invoice_item');
-              },
-              error: function(data, textStatus, jqXHR) {
-                  alert('<%=t.invoices.form.update_invoice_item_error%>');
-              },
-              complete: function(jqXHT, textStatus) {
-                  if (!unlock) {
-                      YSDGui.unLockBackground();
-                  }
-              }                    
-    	  });
+            YSDGui.lockBackground('#bbb');
+            var unlock = false;
+            $.ajax({
+                type: 'PUT',
+                url : url,
+                data: requestJSON,
+                dataType : 'json',
+                contentType : 'application/json; charset=utf-8',
+                crossDomain: true,
+                success: function(data, textStatus, jqXHR) {              	
+                	 unlock = true;
+                	 YSDGui.unLockBackground();
+                	 invoicesManager.model.synchronizeCurrentEntity(data);
+                   invoicesManager.model.change_state('entity_updated_successfully');
+                	 invoicesManagement.view.update('updated_invoice_item');
+                },
+                error: function(data, textStatus, jqXHR) {
+                    alert('<%=t.invoices.form.update_invoice_item_error%>');
+                },
+                complete: function(jqXHT, textStatus) {
+                    if (!unlock) {
+                        YSDGui.unLockBackground();
+                    }
+                }                    
+      	    });
         }        
-
     },
 
     controller: {
 
+      generateBillButtonClick: function() {
+        if (confirm('<%=t.invoices.form.confirm_generate_bill%>')) {
+          invoicesManagement.model.generate_bill();
+        }
+      },
     	newCustomerButtonClick: function() {
     		$('#new_customer_modal').modal('show');
     	},

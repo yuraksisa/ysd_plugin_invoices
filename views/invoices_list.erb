@@ -35,7 +35,10 @@
                 <span class="label label-alert"><%= t.invoices.type.payment %></span>
               <%end%>
              </td>
-             <td></td> 
+             <td>
+                <a href="/admin/invoices/customer-invoices/<%=invoice.id%>.pdf" 
+                   class="btn btn-sm btn-default" role="button" target="blank"><i class="fa fa-print"></i>&nbsp; <%= t.invoices.form.print %></a>
+             </td> 
           </tr>
         <% end %>
       </tbody>

@@ -100,11 +100,15 @@ module Sinatra
         app.put "/api/customer-invoice", :allowed_usergroups => ['bookings_manager','staff'] do
           
           data_request = body_as_json(::Yito::Model::Invoices::CustomerInvoice)
+
+          p "data_request:#{data_request.inspect}"
                               
           if data = ::Yito::Model::Invoices::CustomerInvoice.get(data_request.delete(:id))
             data.transaction do
-              copy_customer_data = (data_request[:customer_id] != data.customer_id)
+              p "customer_id:#{data_request[:customer_id]}--#{data.customer_id}"
+              copy_customer_data = (data_request[:customer_id].to_i != data.customer_id)
               data.attributes=data_request  
+              p "copy_customer_data:#{copy_customer_data}"
               data.copy_customer_data if copy_customer_data
               data.save
             end
@@ -132,6 +136,22 @@ module Sinatra
           true.to_json
         
         end
+
+        #
+        # Generate a bill
+        #
+        app.post '/api/customer-invoice/:invoice_id/generate-bill', allowed_usergroups: ['bookings_manager', 'staff'] do
+
+          if invoice = ::Yito::Model::Invoices::CustomerInvoice.get(params[:invoice_id])
+            invoice.generate_bill
+            status 200
+            content_type :json
+            invoice.to_json
+          else
+            status 404  
+          end  
+
+        end  
 
         #
         # Add a customer invoice item
