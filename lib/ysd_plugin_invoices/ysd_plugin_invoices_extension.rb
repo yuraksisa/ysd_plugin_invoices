@@ -23,9 +23,6 @@ module Huasi
        SystemConfiguration::Counter.first_or_create({:name => 'customer_invoices'}, 
                                                     {:value => 0})
 
-       SystemConfiguration::Counter.first_or_create({:name => 'customer_invoice_payments'}, 
-                                                    {:value => 0})
-
        SystemConfiguration::Counter.first_or_create({:name => 'customer_simplified_invoices'}, 
                                                     {:value => 0})
 

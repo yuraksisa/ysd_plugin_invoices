@@ -1,0 +1,8 @@
+invoices_mailer:
+  subject: Your invoice
+  body: >
+        <p>Hi %1,</p>
+        <p>Thanks for choosing %2. The invoice is attached as a PDF for your records.</p>
+        <p>Please contact us with any questions, we're always happy to help.</p>
+        <p>Cheers,</p>
+        <p>%3</p>

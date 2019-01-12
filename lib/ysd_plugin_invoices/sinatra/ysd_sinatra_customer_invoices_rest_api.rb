@@ -105,10 +105,8 @@ module Sinatra
                               
           if data = ::Yito::Model::Invoices::CustomerInvoice.get(data_request.delete(:id))
             data.transaction do
-              p "customer_id:#{data_request[:customer_id]}--#{data.customer_id}"
               copy_customer_data = (data_request[:customer_id].to_i != data.customer_id)
               data.attributes=data_request  
-              p "copy_customer_data:#{copy_customer_data}"
               data.copy_customer_data if copy_customer_data
               data.save
             end
@@ -127,7 +125,7 @@ module Sinatra
           data_request = body_as_json(::Yito::Model::Invoices::CustomerInvoice)
           
           key = data_request.delete(:id).to_i
-          
+                    
           if data = ::Yito::Model::Invoices::CustomerInvoice.get(key)
             data.destroy
           end
@@ -143,12 +141,31 @@ module Sinatra
         app.post '/api/customer-invoice/:invoice_id/generate-bill', allowed_usergroups: ['bookings_manager', 'staff'] do
 
           if invoice = ::Yito::Model::Invoices::CustomerInvoice.get(params[:invoice_id])
-            invoice.generate_bill
+            # Generate the bill
+            invoice.transaction do
+              invoice.generate_bill
+            end  
             status 200
             content_type :json
             invoice.to_json
           else
             status 404  
+          end  
+
+        end  
+
+        #
+        # Send a invoice
+        #
+        app.post '/api/customer-invoice/:invoice_id/send-invoice', allowed_usergroups: ['booking_manager', 'staff'] do
+
+          if invoice = ::Yito::Model::Invoices::CustomerInvoice.get(params[:invoice_id])
+            #::Delayed::Job.enqueue Job::SendCustomerInvoiceJob.new(invoice.id)
+            Job::SendCustomerInvoiceJob.new(invoice.id).perform
+            invoice.reload
+            status 200
+            content_type :json
+            invoice.to_json
           end  
 
         end  

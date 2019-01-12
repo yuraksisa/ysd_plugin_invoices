@@ -11,13 +11,17 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
     },
 
     onEdit : function(entity) {
-      //$('#date').focus();
       this.configForm(entity);
       invoicesManagement.model.invoice_id = entity.id;
       // Edit invoice item
       $('.edit-invoice-item').bind('click', function(){
         invoicesManagement.controller.editInvoiceLineButtonClick(entity, $(this).attr('data-line-idx'));
       });
+      // Embed activity newsfeed
+      invoicesManagement.view.update('newsfeed_reload');
+      if (entity.invoice_status == 'invoice') {
+        $('.delete-entity-button').hide();
+      }
     },
   
     onNew : function() {
@@ -74,9 +78,9 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
         invoicesManagement.controller.generateBillButtonClick();
       });
 
-      // Invoice type
-      $('#invoice_type').bind('change', function(){
-        invoicesManagement.controller.invoiceTypeChanged();
+      // Send invoice
+      $('#send_invoice_btn').bind('click', function(){
+        invoicesManagement.controller.sendInvoiceButtonClick();
       });
 
     },
@@ -119,6 +123,32 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
               }
             });
         },
+        send_invoice: function() { /** Generate bill **/
+            var url = '/api/customer-invoice/'+this.invoice_id+'/send-invoice';
+            YSDGui.lockBackground('#bbb');
+            var unlock = false;            
+            $.ajax({
+              type: 'POST',
+              url: url,
+              contentType: 'application/json; charset=utf-8',
+              success: function(data, textStatus, jqXHR) {
+                unlock = true;
+                YSDGui.unLockBackground();
+                invoicesManager.model.synchronizeCurrentEntity(data);
+                invoicesManager.model.change_state('entity_updated_successfully');
+                invoicesManagement.view.update('newsfeed_reload');
+                alert('<%=t.invoices.form.email_sent_successfully%>');
+              },
+              error: function(data, textStatus, jqXHR) {
+                alert('<%=t.invoices.form.email_sent_error%>');
+              },
+              complete: function(jqXHT, textStatus) {
+                if (!unlock) {
+                    YSDGui.unLockBackground();
+                }
+              }
+            });
+        },        
       	add_invoice_item: function() { /** Add invoice item **/
             var request = $('form[name=invoice_item_form]').formParams(false);
             var requestJSON = encodeURIComponent(JSON.stringify(request));
@@ -195,20 +225,14 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
           }
         }
       },
+      
+      sendInvoiceButtonClick: function() {
+        invoicesManagement.model.send_invoice();
+      },
+
     	newCustomerButtonClick: function() {
     		$('#new_customer_modal').modal('show');
     	},
-
-      invoiceTypeChanged: function() {
-        if ($('#invoice_type').val() == 'invoice') {
-          $('#invoice_serie_container').show();
-          $('#payment_serie_container').hide();
-        }
-        else {
-          $('#payment_serie_container').show();
-          $('#invoice_serie_container').hide();
-        }
-      },
 
     	newInvoiceLineButtonClick: function() {
     	   var html = tmpl('invoice_item_tmpl')({invoice_item: null});
@@ -257,6 +281,13 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
         		case 'updated_invoice_item':
         		  $('#invoice_line_modal').modal('hide');
         		  break;
+            case 'newsfeed_reload':
+              // Embed activity newsfeed
+              $.ajax({url: '/admin/newsfeed/invoicing/'+ invoicesManagement.model.invoice.id, dataType: 'text'}).done(function(html) {
+                    var dom = $('<html />').prop('innerHTML', html);
+                    $('#newsfeed_container').html(dom.find('body #page_wrapper'));
+                    $('head').append(dom.find('script:not([src])'));
+              });              
         	}
         }
 

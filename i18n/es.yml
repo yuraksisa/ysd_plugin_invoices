@@ -8,6 +8,7 @@ invoices:
     total: Total
     invoice_status: Estado
     invoice_type: Tipo
+    invoice_sent: Enviado
   form:
     invoicing: Facturar
     print: Imprimir
@@ -52,12 +53,22 @@ invoices:
         label: Tipo de impuesto
       price_without_taxes:
         label: Precio (sin impuestos)
+    notifications:
+      title: Notificaciones
+      table:
+        sent: Enviado
+        sent_date: Fecha de envío    
     create_invoice_item_error: Error añadiendo línea de factura    
     update_invoice_item_error: Error actualizando línea de factura
     generate_bill_no_lines: Por favor, añada alguna línea antes de emitir la factura
     confirm_generate_bill: ¿Está seguro que desea emitir la factura?
     bill_generated_successfully: Factura emitida correctamente
-    bill_generation_error: Error emitiendo la factura    
+    bill_generation_error: Error emitiendo la factura
+    email_sent_successfully: Correo electrónico enviado
+    email_sent_error: Error enviando el correo electrónico
+    notes:
+      group: Notas
+      label: Anotaciones         
   pdf:
     invoice_number: Nº de factura
     date: Fecha
@@ -105,4 +116,15 @@ invoices_list:
     concept: Concepto
     total: Total
     invoice_status: Estado
-    invoice_type: Tipo        
+    invoice_type: Tipo
+invoices_mailer:
+  subject: Su factura
+  body: >
+        <p>Hola %1,</p>
+        <p>Gracias por elegir %2. La factura está adjunta como PDF.</p>
+        <p>Por favor, contacte con nosotros si tiene cualquier duda.</p>
+        <p>Saludos,</p>
+        <p>%3</p>
+invoices_newsfeed:
+  notification_sent: Enviada factura a %1
+  bill_generated: Factura emitida

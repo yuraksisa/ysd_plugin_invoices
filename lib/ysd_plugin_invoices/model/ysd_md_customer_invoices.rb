@@ -28,7 +28,7 @@ module Yito
 
         include Yito::Concern::Invoices::Totals
 
-        has n, :items, 'CustomerInvoiceItem', :child_key => [:customer_invoice_id], :parent_key => [:id]
+        has n, :items, 'CustomerInvoiceItem', :child_key => [:customer_invoice_id], :parent_key => [:id], :constraint => :destroy
 
         belongs_to :rectificated_invoice, 'CustomerInvoice', required: false
 
@@ -36,6 +36,9 @@ module Yito
         property :invoice_status, Enum[:draft, :invoice], default: :draft
 
         property :notes, Text
+
+        property :invoice_sent, Boolean, default: false
+        property :invoice_sent_date, DateTime
 
         extend Yito::Model::Finder
 
@@ -51,8 +54,15 @@ module Yito
 
             if invoice_status != :invoice
                 if customer
-                    self.customer_full_name = customer.name + ' ' + customer.surname
-                    self.customer_document_id = customer.document_id
+                  
+                    if customer.customer_type == :invidual
+                      self.customer_full_name = customer.full_name
+                      self.customer_document_id = customer.document_id
+                    elsif customer.customer_type == :legal_entity
+                      self.customer_full_name = customer.company_name
+                      self.customer_document_id = customer.company_document_id
+                    end
+
                     if customer.invoice_address
                         self.customer_address = LocationDataSystem::Address.new if self.customer_address.nil?
                         self.customer_address.street = customer.invoice_address.street
@@ -76,16 +86,16 @@ module Yito
         def generate_bill
 
           if invoice_status == :draft
-
-            next_value = if invoice_type == :invoice 
-                           SystemConfiguration::Counter.next_value('customer_invoices', self.serie)
-                         elsif invoice_type == :payment
-                           SystemConfiguration::Counter.next_value('customer_invoice_payments', self.serie)
-                         end     
-            if next_value
+    
+            if next_value = SystemConfiguration::Counter.next_value('customer_invoices', self.serie)
               self.number = next_value
               self.invoice_status = :invoice
               self.save
+              ::Yito::Model::Newsfeed::Newsfeed.create(category: 'invoicing',
+                    action: 'bill_generated',
+                    identifier: self.id.to_s,
+                    description: YsdPluginInvoices.r18n.t.invoices_newsfeed.bill_generated,
+                    attributes_updated: {invoice_status: :invoice, number: next_value})
             end  
           end  
 

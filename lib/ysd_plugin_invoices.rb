@@ -15,6 +15,8 @@ require "ysd_plugin_invoices/model/ysd_md_customer_simplified_invoice_items"
 
 require "ysd_plugin_invoices/pdf/ysd_md_customer_invoice_pdf"
 
+require "ysd_plugin_invoices/job/ysd_job_send_customer_invoice"
+
 require "ysd_plugin_invoices/sinatra/ysd_sinatra_invoices"
 require "ysd_plugin_invoices/sinatra/ysd_sinatra_customer_invoices"
 require "ysd_plugin_invoices/sinatra/ysd_sinatra_customer_invoices_rest_api"
