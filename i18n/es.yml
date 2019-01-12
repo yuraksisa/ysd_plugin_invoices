@@ -11,6 +11,7 @@ invoices:
   form:
     invoicing: Facturar
     print: Imprimir
+    send_invoice: Enviar
     lines: Líneas de la factura
     type:
       label: Tipo
@@ -24,7 +25,10 @@ invoices:
     customer_document_id:
       label: NIF/CIF      
     concept:
-      label: Concepto    
+      label: Concepto
+    reference_source:
+      label: Origen referencia
+      no_source: No documento origen      
     reference: 
       label: Referencia
     invoice_line_table:
@@ -50,6 +54,7 @@ invoices:
         label: Precio (sin impuestos)
     create_invoice_item_error: Error añadiendo línea de factura    
     update_invoice_item_error: Error actualizando línea de factura
+    generate_bill_no_lines: Por favor, añada alguna línea antes de emitir la factura
     confirm_generate_bill: ¿Está seguro que desea emitir la factura?
     bill_generated_successfully: Factura emitida correctamente
     bill_generation_error: Error emitiendo la factura    

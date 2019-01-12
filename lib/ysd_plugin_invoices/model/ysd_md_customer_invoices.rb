@@ -35,6 +35,8 @@ module Yito
         property :invoice_type, Enum[:invoice, :payment], default: :invoice
         property :invoice_status, Enum[:draft, :invoice], default: :draft
 
+        property :notes, Text
+
         extend Yito::Model::Finder
 
         before :create do |customer_invoice|
@@ -74,7 +76,13 @@ module Yito
         def generate_bill
 
           if invoice_status == :draft
-            if next_value = SystemConfiguration::Counter.next_value('customer_invoices', self.serie)
+
+            next_value = if invoice_type == :invoice 
+                           SystemConfiguration::Counter.next_value('customer_invoices', self.serie)
+                         elsif invoice_type == :payment
+                           SystemConfiguration::Counter.next_value('customer_invoice_payments', self.serie)
+                         end     
+            if next_value
               self.number = next_value
               self.invoice_status = :invoice
               self.save
@@ -124,7 +132,6 @@ module Yito
               invoice_item.vat_type = vat_type
               invoice_item.vat_percentage = vat_percentage
               invoice_item.quantity = quantity
-              p "price_without_taxes: #{price_without_taxes} #{vat_percentage}"
               invoice_item.price_without_taxes = price_without_taxes
               invoice_item.unit_taxes = ((invoice_item.price_without_taxes * vat_percentage) / 100.0).round(2)
               invoice_item.total_without_taxes = (invoice_item.price_without_taxes * quantity).round(2)
@@ -132,7 +139,6 @@ module Yito
               invoice_item.taxes = ((invoice_item.total_without_taxes * vat_percentage) / 100.0).round(2)
               invoice_item.total = (invoice_item.total_without_taxes + invoice_item.taxes).round(2)
               invoice_item.customer_invoice = self
-              p "invoice_item:#{invoice_item.valid?}--#{invoice_item.unit_taxes}--#{invoice_item.taxes}--#{invoice_item.errors.full_messages.inspect}"
               invoice_item.save             
               # Update total
               update_item_data(invoice_item, old_invoice_item, taxes)

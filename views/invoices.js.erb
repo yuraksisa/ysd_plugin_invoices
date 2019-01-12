@@ -27,6 +27,8 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
 
     configForm: function(entity) {
       
+      invoicesManagement.model.invoice = entity;
+
       // Setup date
       var locale = $.datepicker.regional["<%=session[:locale] || 'es'%>"];             
       $.datepicker.setDefaults($.datepicker.regional["<%=session[:locale] || 'es'%>"]);
@@ -72,6 +74,11 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
         invoicesManagement.controller.generateBillButtonClick();
       });
 
+      // Invoice type
+      $('#invoice_type').bind('change', function(){
+        invoicesManagement.controller.invoiceTypeChanged();
+      });
+
     },
 
     adaptFormData: function(data) {      
@@ -85,6 +92,7 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
   var invoicesManagement = {
 
     model: {
+        invoice: null,
         invoice_id: null,
         generate_bill: function() { /** Generate bill **/
             var url = '/api/customer-invoice/'+this.invoice_id+'/generate-bill';
@@ -178,13 +186,29 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
     controller: {
 
       generateBillButtonClick: function() {
-        if (confirm('<%=t.invoices.form.confirm_generate_bill%>')) {
-          invoicesManagement.model.generate_bill();
+        if (invoicesManagement.model.invoice.items.length == 0) {
+          alert('<%=t.invoices.form.generate_bill_no_lines%>');
+        }
+        else {
+          if (confirm('<%=t.invoices.form.confirm_generate_bill%>')) {
+            invoicesManagement.model.generate_bill();
+          }
         }
       },
     	newCustomerButtonClick: function() {
     		$('#new_customer_modal').modal('show');
     	},
+
+      invoiceTypeChanged: function() {
+        if ($('#invoice_type').val() == 'invoice') {
+          $('#invoice_serie_container').show();
+          $('#payment_serie_container').hide();
+        }
+        else {
+          $('#payment_serie_container').show();
+          $('#invoice_serie_container').hide();
+        }
+      },
 
     	newInvoiceLineButtonClick: function() {
     	   var html = tmpl('invoice_item_tmpl')({invoice_item: null});

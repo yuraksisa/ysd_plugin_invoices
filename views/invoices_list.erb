@@ -23,16 +23,16 @@
              <td><%="%.2f" % invoice.total%></td>
              <td>
               <% if invoice.invoice_status == :draft %>
-                <span class="label label-default"><%= t.invoices.status.draft %></span>
+                <span class="label label-default" style="font-size:100%"><%= t.invoices.status.draft %></span>
               <% elsif invoice.invoice_status == :invoice %>
-                <span class="label label-success"><%= t.invoices.status.invoice %></span>
+                <span class="label label-success" style="font-size:100%"><%= t.invoices.status.invoice %></span>
               <% end %>  
              </td>
              <td>
               <% if invoice.invoice_type == :invoice%>
-                <span class="label label-info"><%= t.invoices.type.invoice %></span>
+                <span class="label label-info" style="font-size:100%"><%= t.invoices.type.invoice %></span>
               <%elsif invoice.invoice_type == :payment%>
-                <span class="label label-alert"><%= t.invoices.type.payment %></span>
+                <span class="label label-danger" style="font-size:100%"><%= t.invoices.type.payment %></span>
               <%end%>
              </td>
              <td>
