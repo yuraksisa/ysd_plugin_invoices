@@ -153,133 +153,136 @@
                   </div>                       
                 </h3>
               </div>     
-              <%% } %>         
+              <%% } else { %>
+              <div class="block-header bg-gray-lighter">
+                  <h3 class="block-title pull-left" style="position:relative; top: 5px">#<%= t.invoices.status.draft %></h3>
+              </div>                 
+              <%% } %>   
+
               <div class="block-content">
                   <form name="element" class="form-horizontal" method="POST" autocomplete="off">
+
                       <%% if (entity) { %>
                       <input type="hidden" name="id" value="<%%=entity.id%>"/>
                       <%% } %>
-                      <div <%% if (entity) { %>class="col-md-6"<%% } else {%>class="col-md-12"<%%}%>>
-                        <div class="form-group">
-                           <label class="col-md-12"><%= t.invoices.form.type.label %></label>
-                           <div class="col-md-12">
-                             <select id="invoice_type" name="invoice_type" class="form-control"
-                                     <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>>
-                               <option value="invoice" <%% if (entity && entity.invoice_type == 'invoice') { %>selected<%%}%>><%= t.invoice_type.invoice %></option>
-                               <option value="payment" <%% if (entity && entity.invoice_type == 'payment') { %>selected<%%}%>><%= t.invoice_type.payment %></option>
-                             </select>
-                           </div>
-                        </div> 
-                        <div class="form-group">
-                           <label class="col-md-12"><%= t.invoices.form.serie.label %></label>
-                           <div class="col-md-12">
-                             <select id="serie" name="serie" class="form-control"
-                               <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>>
-                               <% @series.each do |serie| %>
-                                 <option value="<%=serie%>" <%% if (entity && entity.serie == '<%=serie%>') { %>selected<%%}%>><%=serie%></option>
-                               <% end %>
-                             </select>                            
-                           </div>
+
+                      <!-- Type and serie -->
+                      <div class="row">
+                        <div class="col-md-6">
+                          <div class="form-group">
+                             <label class="col-md-12"><%= t.invoices.form.type.label %></label>
+                             <div class="col-md-12">
+                               <select id="invoice_type" name="invoice_type" class="form-control"
+                                       <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>>
+                                 <option value="invoice" <%% if (entity && entity.invoice_type == 'invoice') { %>selected<%%}%>><%= t.invoice_type.invoice %></option>
+                                 <option value="payment" <%% if (entity && entity.invoice_type == 'payment') { %>selected<%%}%>><%= t.invoice_type.payment %></option>
+                               </select>
+                             </div>
+                          </div> 
+                        </div>    
+                        <% unless @series.empty? %>
+                        <div class="col-md-6">
+                          <div class="form-group">
+                             <label class="col-md-12"><%= t.invoices.form.serie.label %></label>
+                             <div class="col-md-11">
+                               <select id="serie" name="serie" class="form-control"
+                                 <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>>
+                                 <% @series.each do |serie| %>
+                                   <option value="<%=serie%>" <%% if (entity && entity.serie == '<%=serie%>') { %>selected<%%}%>><%=serie%></option>
+                                 <% end %>
+                               </select>                            
+                             </div>
+                          </div>
+                        </div>  
+                        <% end %>
+                      </div>
+
+                      <!-- Date and concept -->
+                      <div class="row">
+                        <div class="col-md-6">
+  	                      <div class="form-group">
+  	                         <label class="col-md-12"><%= t.invoices.form.date.label %></label>
+  	                         <div class="col-md-12">
+  	                           <input type="text" maxlength="10" id="date" name="date" class="form-control" autocomplete="off" <%% if (entity) {%> value="<%%=entity.date%>" <%%}%> <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>/>
+  	                         </div>
+  	                      </div>
                         </div>
-                                          
-	                      <div class="form-group">
-	                         <label class="col-md-12"><%= t.invoices.form.date.label %></label>
-	                         <div class="col-md-12">
-	                           <input type="text" maxlength="10" id="date" name="date" class="form-control" autocomplete="off" <%% if (entity) {%> value="<%%=entity.date%>" <%%}%> <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>/>
-	                         </div>
-	                      </div>
-	                      <div class="form-group">
-	                         <label class="col-md-12"><%= t.invoices.form.customer.label %></label>
-	                         <div <%% if (!entity || (entity && entity.invoice_status == 'draft')) { %>class="col-md-9"<%%}else{%>class="col-md-12"<%%}%>>
-	                           <input type="hidden" id="customer_id" name="customer_id" <%% if (entity) { %>value="<%%=entity.customer_id%>"<%%}%>/>
-	                           <input type="text" id="customer" name="customer" class="form-control" autocomplete="off" <%% if (entity) {%> value="<%%=entity.customer.name%> <%%=entity.customer.surname%>" <%%}%> <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>/>
-	                         </div>
-                           <%% if (!entity || (entity && entity.invoice_status == 'draft')) { %>
-	                         <div class="col-md-3">
-	                           <a id="new_customer_button" href="#" class="pull-right" style="position: relative; top: 5px"><%= t.invoices.form.new_customer %></a>
-	                         </div>
-                           <%% } %>
-	                      </div>
-	                      <%% if (entity) { %>
-	                      <div class="form-group">
-	                         <label class="col-md-12"><%= t.invoices.form.customer_document_id.label %></label>
-	                         <div class="col-md-12">
-	                           <input type="text" id="customer_document_id" name="customer_document_id" class="form-control" autocomplete="off" 
-	                              <%% if (entity) {%> value="<%%=entity.customer_document_id%>" <%%}%> <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>/>
-	                         </div>
-	                      </div>	          
-	                      <%% } %>
-                        <div class="form-group">
-                           <label class="col-md-12"><%= t.invoices.form.reference_source.label %></label>
-                           <div class="col-md-12">
-                             <select id="reference_source" name="reference_source" class="form-control"
-                               <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>>
-                               <option value="" <%%if (entity && (entity.reference_source == null || entity.reference_source == '')){%>selected<%%}%>><%=t.invoices.form.reference_source.no_source%></option>
-                               <% @sources.each do |source| %>
-                                 <option value="<%=source%>" <%% if (entity && entity.reference_source == '<%=source%>') { %>selected<%%}%>><%=t.invoices_integration[source]%></option>
-                               <% end %>
-                             </select>
-                           </div>
-                        </div>                                       
-	                      <div class="form-group">
-	                         <label class="col-md-12"><%= t.invoices.form.reference.label %></label>
-	                         <div class="col-md-12">
-	                           <input type="text" maxlength="10" id="reference" name="reference" class="form-control" <%% if (entity) {%> value="<%%=entity.reference%>" <%%}%> <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>/>
-	                         </div>
-	                      </div>                      
-	                      <div class="form-group">
-	                         <label class="col-md-12"><%= t.invoices.form.concept.label %></label>
-	                         <div class="col-md-12">
-	                           <textarea rows="7" cols="50" id="concept" name="concept" class="form-control" <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>><%% if (entity) {%><%%=entity.concept%><%%}%></textarea>
-	                         </div>
-	                      </div>                                          
+                        <div class="col-md-6">
+                          <div class="form-group">
+                             <label class="col-md-12"><%= t.invoices.form.concept.label %></label>
+                             <div class="col-md-11">
+                               <select name="concept" class="form-control"
+                                 <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>>
+                                 <option value=""><%= t.invoices.form.select_concept %></option>
+                                 <% @concept.classifier_terms.each do |term| %>
+                                   <option value="<%=term.name%>" <%% if (entity && entity.concept == '<%=term.name%>') { %>selected<%%}%>><%=term.name%></option>
+                                 <% end %>
+                               </select>  
+                               <textarea rows="1" cols="50" name="concept" class="form-control" <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>><%% if (entity) {%><%%=entity.concept%><%%}%></textarea>
+                             </div>
+                          </div>    
+                          <div class="form-group">
+                            <label class="css-input switch switch-sm switch-primary" style="margin-left: 15px">
+                                <input type="checkbox" id="manual_concept" checked=""><span></span> <%= t.invoices.form.manual_concept.label %>
+                            </label>
+                          </div>                                                   
+                        </div>
                       </div>
-                      <%% if (entity) { %>
-                      <div class="col-md-6">
-	                      <div class="form-group">
-	                         <label class="col-md-12"><%= t.address.street.label %></label>
-	                         <div class="col-md-12">
-	                           <input type="text" maxlength="60" id="customer_address_street" name="customer_address[street]" class="form-control" <%% if (entity && entity.customer_address) {%> value="<%%=entity.customer_address.street%>" <%%}%> <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>/>
-	                         </div>
-	                      </div>
-	                      <div class="form-group">
-	                         <label class="col-md-12"><%= t.address.number.label %></label>
-	                         <div class="col-md-12">
-	                           <input type="text" maxlength="10" id="customer_address_number" name="customer_address[number]" class="form-control" <%% if (entity && entity.customer_address) {%> value="<%%=entity.customer_address.number%>" <%%}%> <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>/>
-	                         </div>
-	                      </div>
-	                      <div class="form-group">
-	                         <label class="col-md-12"><%= t.address.complement.label %></label>
-	                         <div class="col-md-12">
-	                           <input type="text" maxlength="20" id="customer_address_complement" name="customer_address[complement]" class="form-control" <%% if (entity && entity.customer_address) {%> value="<%%=entity.customer_address.complement%>" <%%}%> <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>/>
-	                         </div>
-	                      </div>
-	                      <div class="form-group">
-	                         <label class="col-md-12"><%= t.address.city.label %></label>
-	                         <div class="col-md-12">
-	                           <input type="text" maxlength="60" id="customer_address_city" name="customer_address[city]" class="form-control" <%% if (entity && entity.customer_address) {%> value="<%%=entity.customer_address.city%>" <%%}%> <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>/>
-	                         </div>
-	                      </div>
-	                      <div class="form-group">
-	                         <label class="col-md-12"><%= t.address.state.label %></label>
-	                         <div class="col-md-12">
-	                           <input type="text" maxlength="50" id="customer_address_state" name="customer_address[state]" class="form-control" <%% if (entity && entity.customer_address) {%> value="<%%=entity.customer_address.state%>" <%%}%> <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>/>
-	                         </div>
-	                      </div>
-	                      <div class="form-group">
-	                         <label class="col-md-12"><%= t.address.zip.label %></label>
-	                         <div class="col-md-12">
-	                           <input type="text" maxlength="10" id="customer_address_zip" name="customer_address[zip]" class="form-control" <%% if (entity && entity.customer_address) {%> value="<%%=entity.customer_address.zip%>" <%%}%> <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>/>
-	                         </div>
-	                      </div>
-	                      <div class="form-group">
-	                         <label class="col-md-12"><%= t.address.country.label %></label>
-	                         <div class="col-md-12">
-	                           <input type="text" maxlength="50" id="customer_address_country" name="customer_address[country]" class="form-control" <%% if (entity && entity.customer_address) {%> value="<%%=entity.customer_address.country%>" <%%}%> <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>/>
-	                         </div>
-	                      </div>                      
-                      </div>
-                      <%% } %>
+                          
+                      <!-- Customer -->
+                      <div class="row">
+                        <div class="col-md-6">                            
+  	                      <div class="form-group">
+  	                         <label class="col-md-12"><%= t.invoices.form.customer.label %></label>
+  	                         <div <%% if (!entity || (entity && entity.invoice_status == 'draft')) { %>class="col-md-9"<%%}else{%>class="col-md-12"<%%}%>>
+  	                           <input type="hidden" id="customer_id" name="customer_id" <%% if (entity) { %>value="<%%=entity.customer_id%>"<%%}%>/>
+  	                           <input type="text" id="customer" name="customer" class="form-control" autocomplete="off" <%% if (entity) {%> value="<%%=entity.customer.name%> <%%=entity.customer.surname%>" <%%}%> <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>/>
+  	                         </div>
+                             <%% if (!entity || (entity && entity.invoice_status == 'draft')) { %>
+  	                         <div class="col-md-3">
+  	                           <a id="new_customer_button" href="#" class="pull-right" style="position: relative; top: 5px"><%= t.invoices.form.new_customer %></a>
+  	                         </div>
+                             <%% } %>
+  	                      </div>
+                        </div>  
+                          <div class="col-md-6">
+    	                      <div class="form-group">
+    	                         <label class="col-md-12"><%= t.invoices.form.customer_document_id.label %></label>
+    	                         <div class="col-md-12">
+    	                           <input type="text" id="customer_document_id" name="customer_document_id" class="form-control" autocomplete="off" 
+    	                              <%% if (entity) {%> value="<%%=entity.customer_document_id%>" <%%}%> <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>/>
+    	                         </div>
+    	                      </div>	          
+                          </div>
+                      </div>    
+
+                      <!-- Document reference -->
+                      <div class="row">
+                        <div class="col-md-6">     
+
+                          <div class="form-group">
+                             <label class="col-md-12"><%= t.invoices.form.reference_source.label %></label>
+                             <div class="col-md-12">
+                               <select id="reference_source" name="reference_source" class="form-control"
+                                 <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>>
+                                 <option value="" <%%if (entity && (entity.reference_source == null || entity.reference_source == '')){%>selected<%%}%>><%=t.invoices.form.reference_source.no_source%></option>
+                                 <% @sources.each do |source| %>
+                                   <option value="<%=source%>" <%% if (entity && entity.reference_source == '<%=source%>') { %>selected<%%}%>><%=t.invoices_integration[source]%></option>
+                                 <% end %>
+                               </select>
+                             </div>
+                          </div>     
+                        </div>
+                        <div class="col-md-6">                                    
+  	                      <div class="form-group">
+  	                         <label class="col-md-12"><%= t.invoices.form.reference.label %></label>
+  	                         <div class="col-md-12">
+  	                           <input type="text" maxlength="10" id="reference" name="reference" class="form-control" <%% if (entity) {%> value="<%%=entity.reference%>" <%%}%> <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>/>
+  	                         </div>
+  	                      </div>              
+                        </div>
+                      </div>            
+    	                                
                       <div class="form-group">
 	                        <div class="col-md-12">
   	                        <%% if (entity) { %>
@@ -299,6 +302,7 @@
             </div>
           </div>
         </div>
+ 
         <%% if (entity) { %>
         <!-- Lines -->
         <div class="row">
@@ -313,7 +317,7 @@
                         <thead>
                             <tr>
                                 <th class="text-left"><%= t.invoices.form.invoice_line_table.concept %></th>
-                                <th style="width: 100px;"><%= t.invoices.form.invoice_line_table.quantity %></th>
+                                <th class="text-right" style="width: 100px;"><%= t.invoices.form.invoice_line_table.quantity %></th>
                                 <th style="width: 100px;" class="text-center"><%= t.invoices.form.invoice_line_table.vat_percentage %></th>
                                 <th class="text-right" style="width: 10%;"><%= t.invoices.form.invoice_line_table.price_without_taxes %></th>
                                 <th class="text-right" style="width: 10%;"><%= t.invoices.form.invoice_line_table.total_without_taxes %></th>
@@ -324,10 +328,10 @@
                             <%% for (var idx=0;idx<entity.items.length; idx++) { %>
                             <tr>
                                 <td class="text-left"><%%=entity.items[idx].concept%></td>
-                                <td>1</td>
+                                <td class="text-right"><%% if (entity.invoice_type == 'payment') { %>-<%%}%><%%=entity.items[idx].quantity%></td>
                                 <td class="text-center"><strong><%%=entity.items[idx].vat_percentage%>%</strong></td>
                                 <td class="text-right"><%%=new Number(entity.items[idx].price_without_taxes).toFixed(2)%></td>
-                                <td class="text-right"><%%=new Number(entity.items[idx].total_without_taxes).toFixed(2)%></td>
+                                <td class="text-right"><%% if (entity.invoice_type == 'payment') { %>-<%%}%><%%=new Number(entity.items[idx].total_without_taxes).toFixed(2)%></td>
                                 <td>
                                     <%% if (entity.invoice_status == 'draft') { %>
                                     <button type="button" class="btn btn-default modify-order-line-button action-button entity-management-button edit-invoice-item" rel="1746" data-line-idx="<%%=idx%>"><i class="fa fa-pencil"></i></button>
@@ -341,17 +345,17 @@
                             <%% } %> 	
                             <tr>
                                 <td colspan="4" class="text-right"><strong><%= t.invoices.form.invoice_line_table.subtotal %>:</strong></td>
-                                <td class="text-right"><%%=new Number(entity.subtotal).toFixed(2)%></td>
+                                <td class="text-right"><%% if (entity.invoice_type == 'payment') { %>-<%%}%><%%=new Number(entity.subtotal).toFixed(2)%></td>
                                 <td></td>
                             </tr>
                             <tr>
                                 <td colspan="4" class="text-right"><strong><%= t.invoices.form.invoice_line_table.taxes %>:</strong></td>
-                                <td class="text-right"><%%=new Number(entity.total_taxes).toFixed(2)%></td>
+                                <td class="text-right"><%% if (entity.invoice_type == 'payment') { %>-<%%}%><%%=new Number(entity.total_taxes).toFixed(2)%></td>
                                 <td></td>
                             </tr>
                             <tr class="success">
                                 <td colspan="4" class="text-right text-uppercase"><strong><%= t.invoices.form.invoice_line_table.total %>:</strong></td>
-                                <td class="text-right"><strong><%%=new Number(entity.total).toFixed(2)%></strong></td>
+                                <td class="text-right"><strong><%% if (entity.invoice_type == 'payment') { %>-<%%}%><%%=new Number(entity.total).toFixed(2)%></strong></td>
                                 <td></td>
                             </tr>
 
@@ -369,6 +373,97 @@
           </div>
         </div>  
 
+
+        <!-- Invoice address -->
+
+        <%% if (entity) { %>
+        <div class="row">
+          <div class="col-sm-12 col-md-10 col-md-offset-1">
+            <div class="block ">
+              <div class="block-header bg-gray-lighter">
+                <h3 class="block-title"><%= t.invoices.form.invoice_address %></h3>
+              </div>
+              <div class="block-content">
+                  <form name="element" class="form-horizontal" method="POST" autocomplete="off">
+                        <div class="row">
+                          <div class="col-md-4">
+                            <div class="form-group">
+                               <label class="col-md-12"><%= t.address.street.label %></label>
+                               <div class="col-md-12">
+                                 <input type="text" maxlength="60" id="customer_address_street" name="customer_address[street]" class="form-control" <%% if (entity && entity.customer_address) {%> value="<%%=entity.customer_address.street%>" <%%}%> <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>/>
+                               </div>
+                            </div>
+                          </div>
+                          <div class="col-md-4">
+                            <div class="form-group">
+                               <label class="col-md-12"><%= t.address.number.label %></label>
+                               <div class="col-md-12">
+                                 <input type="text" maxlength="10" id="customer_address_number" name="customer_address[number]" class="form-control" <%% if (entity && entity.customer_address) {%> value="<%%=entity.customer_address.number%>" <%%}%> <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>/>
+                               </div>
+                            </div>
+                          </div>
+                          <div class="col-md-4">
+                            <div class="form-group">
+                               <label class="col-md-12"><%= t.address.complement.label %></label>
+                               <div class="col-md-12">
+                                 <input type="text" maxlength="20" id="customer_address_complement" name="customer_address[complement]" class="form-control" <%% if (entity && entity.customer_address) {%> value="<%%=entity.customer_address.complement%>" <%%}%> <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>/>
+                               </div>
+                            </div>
+                          </div>
+                        </div> 
+
+                        <div class="row">
+                          <div class="col-md-3">                        
+                            <div class="form-group">
+                               <label class="col-md-12"><%= t.address.city.label %></label>
+                               <div class="col-md-12">
+                                 <input type="text" maxlength="60" id="customer_address_city" name="customer_address[city]" class="form-control" <%% if (entity && entity.customer_address) {%> value="<%%=entity.customer_address.city%>" <%%}%> <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>/>
+                               </div>
+                            </div>
+                          </div>
+                          <div class="col-md-3">                            
+                            <div class="form-group">
+                               <label class="col-md-12"><%= t.address.state.label %></label>
+                               <div class="col-md-12">
+                                 <input type="text" maxlength="50" id="customer_address_state" name="customer_address[state]" class="form-control" <%% if (entity && entity.customer_address) {%> value="<%%=entity.customer_address.state%>" <%%}%> <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>/>
+                               </div>
+                            </div>
+                          </div>
+                          <div class="col-md-3">                              
+                            <div class="form-group">
+                               <label class="col-md-12"><%= t.address.zip.label %></label>
+                               <div class="col-md-12">
+                                 <input type="text" maxlength="10" id="customer_address_zip" name="customer_address[zip]" class="form-control" <%% if (entity && entity.customer_address) {%> value="<%%=entity.customer_address.zip%>" <%%}%> <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>/>
+                               </div>
+                            </div>
+                          </div>
+                          <div class="col-md-3">                              
+                            <div class="form-group">
+                               <label class="col-md-12"><%= t.address.country.label %></label>
+                               <div class="col-md-12">
+                                 <input type="text" maxlength="50" id="customer_address_country" name="customer_address[country]" class="form-control" <%% if (entity && entity.customer_address) {%> value="<%%=entity.customer_address.country%>" <%%}%> <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>/>
+                               </div>
+                            </div>    
+                          </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-12">
+                              <%% if (entity) { %>
+                                <%% if (entity.invoice_status == 'draft') { %>
+                                <hr>
+                                <input type="button" class="pull-right btn btn-sm btn-primary update-entity-button action-button entity-management-button" value="<%=t.entitymanagement.update%>"/>
+                                <%% } %>
+                              <%% } %>
+                            </div>
+                        </div>
+                  </form>
+              </div>
+            </div>
+          </div>
+        </div>    
+        <%% } %>  
+
         <!-- Notes -->
 
         <div class="row">
@@ -385,7 +480,7 @@
                       <div class="form-group">
                          <label class="col-md-3"><%= t.invoices.form.notes.label %></label>
                          <div class="col-md-12">
-                           <textarea id="notes" name="notes" class="form-control" rows="10" <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>><%%=entity.notes%></textarea>
+                           <textarea id="notes" name="notes" class="form-control" rows="4" <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>><%%=entity.notes%></textarea>
                          </div>
                       </div>                             
                       <div class="form-group">
@@ -450,10 +545,23 @@
 	      <%% } %>
 	      <div class="form-group">
 	         <label class="col-md-3 control-label"><%= t.invoices.form.invoice_item.concept.label %></label>
-	         <div class="col-md-9">
+	         <div class="col-md-8">
+             <select name="concept" class="form-control"
+               <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>>
+               <option value=""><%= t.invoices.form.select_concept %></option>
+               <% @concept.classifier_terms.each do |term| %>
+                 <option value="<%=term.name%>" <%% if (invoice_item && invoice_item.concept == '<%=term.name%>') { %>selected<%%}%>><%=term.name%></option>
+               <% end %>
+             </select>             
 	           <input type="text" maxlength="100" id="concept" name="concept" class="form-control" autocomplete="off" <%% if (invoice_item) {%> value="<%%=invoice_item.concept%>" <%%}%>/>
 	         </div>
 	      </div>
+        <div class="form-group">
+          <label class="col-md-3 control-label">&nbsp;</label>
+          <label class="css-input switch switch-sm switch-primary" style="margin-left: 15px">
+              <input type="checkbox" id="item_manual_concept" checked=""><span></span> <%= t.invoices.form.manual_concept.label %>
+          </label>
+        </div>
 
 	      <div class="form-group">
 	         <label class="col-md-3 control-label"><%= t.invoices.form.invoice_item.quantity.label %></label>

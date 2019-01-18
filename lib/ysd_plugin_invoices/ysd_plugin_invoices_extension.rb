@@ -34,8 +34,8 @@ module Huasi
                                                        apply_vat_reduced: true, vat_reduced: 10,
                                                        apply_vat_reduced_2: true, vat_reduced_2: 4,
                                                        apply_vat_reduced_3: false, vat_reduced_3: nil,
-                                                       apply_vat_zero: true })                                                    
-
+                                                       apply_vat_zero: true })                      
+                                                           
     end                                                       
     
   end #IntegrationExtension

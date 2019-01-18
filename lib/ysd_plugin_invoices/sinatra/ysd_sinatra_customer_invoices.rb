@@ -55,9 +55,9 @@ module Sinatra
 
           locals = {:per_page => 20}
           @series = SystemConfiguration::Counter.series('customer_invoices')
-          @invoice_payment_series = SystemConfiguration::Counter.series('customer_invoice_payments')
           @taxes = ::Yito::Model::Invoices::Taxes.first(name: 'taxes.default')
           @sources = Plugins::Plugin.plugin_invoke_all('invoice_sources', {:app => self})
+          @concept = ::Yito::Model::Classifier::ClassifierTaxonomy.first({name: 'customer_invoice_concepts'})
           load_em_page :invoices,
                        :customer_invoices, false, :locals => locals
 

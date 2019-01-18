@@ -27,9 +27,13 @@ invoices:
       label: NIF/CIF      
     concept:
       label: Concepto
+    select_concept: Seleccionar concepto  
+    invoice_address: Dirección de facturación
+    manual_concept:
+      label: Otro concepto (texto libre)
     reference_source:
-      label: Origen referencia
-      no_source: No documento origen      
+      label: Tipo documento vinculado
+      no_source: Seleccionar tipo documento      
     reference: 
       label: Referencia
     invoice_line_table:

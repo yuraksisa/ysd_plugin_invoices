@@ -58,8 +58,26 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
             if (ui.item && ui.item.value) {
                 $("#customer").val(ui.item.label);
                 $("#customer_id").val(ui.item.value);
+                $("#customer_document_id").val(ui.item.document_id);
                 return false;
             }
+        }
+      });      
+
+      // Concept
+      if (entity && entity.concept && entity.concept.length > 0 && $('select[name=concept]').val()=='') {
+        this.textConcept();
+      }
+      else {
+        this.selectConcept();
+        $('#manual_concept').attr('checked', false);  
+      }
+      $('#manual_concept').bind('change', function(){
+        if ($('#manual_concept').is(':checked')) {
+          invoicesHook.textConcept();
+        }
+        else {
+          invoicesHook.selectConcept(); 
         }
       });      
 
@@ -70,7 +88,7 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
 
       // New invoice item
       $('#new_invoice_line_button').bind('click', function(){
-      	invoicesManagement.controller.newInvoiceLineButtonClick();
+      	invoicesManagement.controller.newInvoiceLineButtonClick(entity);
       });
 
       // Generate bill
@@ -87,7 +105,23 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
 
     adaptFormData: function(data) {      
       delete data.customer;
+      if (!($('#manual_concept').is(':checked'))) {
+        data.concept = $('select[name=concept]').val();
+      }
       return data;
+    },
+
+    textConcept: function() {
+        $('select[name=concept]').attr('readonly', true);
+        $('textarea[name=concept]').removeAttr('readonly'); 
+        $('select[name=concept]').hide();
+        $('textarea[name=concept]').show();
+    },
+    selectConcept: function() {
+        $('textarea[name=concept]').attr('readonly', true);                  
+        $('select[name=concept]').removeAttr('readonly'); 
+        $('select[name=concept]').show();
+        $('textarea[name=concept]').hide();
     }
         
 
@@ -151,6 +185,9 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
         },        
       	add_invoice_item: function() { /** Add invoice item **/
             var request = $('form[name=invoice_item_form]').formParams(false);
+            if (!($('#item_manual_concept').is(':checked'))) {
+              request.concept = $('form[name=invoice_item_form] select[name=concept]').val();
+            }
             var requestJSON = encodeURIComponent(JSON.stringify(request));
             var url = '/api/customer-invoice/'+this.invoice_id+'/invoice-item';
 
@@ -182,6 +219,9 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
         },
       	update_invoice_item: function(invoice_item_id) { /** Update invoice item **/
             var request = $('form[name=invoice_item_form]').formParams(false);
+            if (!($('#item_manual_concept').is(':checked'))) {
+              request.concept = $('form[name=invoice_item_form] select[name=concept]').val();
+            }            
             var requestJSON = encodeURIComponent(JSON.stringify(request));
             var url = '/api/customer-invoice/'+this.invoice_id+'/invoice-item/'+invoice_item_id;
 
@@ -234,8 +274,8 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
     		$('#new_customer_modal').modal('show');
     	},
 
-    	newInvoiceLineButtonClick: function() {
-    	   var html = tmpl('invoice_item_tmpl')({invoice_item: null});
+    	newInvoiceLineButtonClick: function(entity) {
+    	   var html = tmpl('invoice_item_tmpl')({entity: entity, invoice_item: null});
       	   $('#invoice_line_modal .modal-body').html(html);
       	   $('#invoice_line_modal').on('shown.bs.modal', function() {
              $('#price_without_taxes').autoNumeric('init',{aSep:''});  
@@ -244,6 +284,7 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
   	           invoicesManagement.controller.createInvoiceItemButtonClick();
   	       	 });
            });
+           invoicesManagement.view.update('invoice_line_shown', null);
            $('#invoice_line_modal').modal('show');
     	},
 
@@ -258,6 +299,7 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
   	           invoicesManagement.controller.updateInvoiceItemButtonClick(invoice_item.id);
   	       	 });
            });
+           invoicesManagement.view.update('invoice_line_shown', invoice_item);
            $('#invoice_line_modal').modal('show');
     	},
 
@@ -273,8 +315,25 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
 
     view: {
 
-        update: function(action) {
+        update: function(action, item) {
         	switch (action) {
+            case 'invoice_line_shown':
+              if (item && item.concept && item.concept.length > 0 && $('form[name=invoice_item_form] select[name=concept]').val()=='') {
+                this.textConcept();
+              }
+              else {
+                this.selectConcept();
+                $('#item_manual_concept').attr('checked', false);  
+              }
+              $('#item_manual_concept').bind('change', function(){
+                if ($('#item_manual_concept').is(':checked')) {
+                  invoicesManagement.view.textConcept();
+                }
+                else {
+                  invoicesManagement.view.selectConcept(); 
+                }
+              });                
+              break;
         		case 'added_invoice_item':
         		  $('#invoice_line_modal').modal('hide');
         		  break;
@@ -289,7 +348,20 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
                     $('head').append(dom.find('script:not([src])'));
               });              
         	}
-        }
+        },
+
+        textConcept: function() {
+            $('form[name=invoice_item_form] select[name=concept]').attr('readonly', true);
+            $('form[name=invoice_item_form] input[name=concept]').removeAttr('readonly'); 
+            $('form[name=invoice_item_form] select[name=concept]').hide();
+            $('form[name=invoice_item_form] input[name=concept]').show();
+        },
+        selectConcept: function() {
+            $('form[name=invoice_item_form] input[name=concept]').attr('readonly', true);                  
+            $('form[name=invoice_item_form] select[name=concept]').removeAttr('readonly'); 
+            $('form[name=invoice_item_form] select[name=concept]').show();
+            $('form[name=invoice_item_form] input[name=concept]').hide();
+        }        
 
     }
 
