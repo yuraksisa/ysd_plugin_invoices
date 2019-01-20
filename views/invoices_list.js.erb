@@ -1,17 +1,44 @@
-require(['jquery', 'YSDForms'], function($, YSDForms) {
+require(['jquery', 'YSDForms', 'YSDGui', 'jquery.form', 'jquery.toast'], function($, YSDForms, YSDGui) {
 
   invoicesListModel = {
-
+    sendInvoice: function(id) {
+      var url = '/api/customer-invoice/'+id+'/send-invoice';
+      YSDGui.lockBackground('#bbb');
+      var unlock = false;            
+      $.ajax({
+        type: 'POST',
+        url: url,
+        contentType: 'application/json; charset=utf-8',
+        success: function(data, textStatus, jqXHR) {
+          unlock = true;
+          YSDGui.unLockBackground();
+          alert('<%=t.invoices.form.email_sent_successfully%>');
+        },
+        error: function(data, textStatus, jqXHR) {
+          alert('<%=t.invoices.form.email_sent_error%>');
+        },
+        complete: function(jqXHT, textStatus) {
+          if (!unlock) {
+              YSDGui.unLockBackground();
+          }
+        }
+      });    
+    }
   };
 
   invoicesListController = {
-
+    sendInvoiceBtnClick: function(id) {
+      invoicesListModel.sendInvoice(id);
+    }
   };
 
   invoicesListView = {
 
   	init: function() {
   		YSDForms.improve();
+      $('.send_invoice_btn').bind('click', function(){
+        invoicesListController.sendInvoiceBtnClick($(this).attr('rel'));
+      });
   	}
 
   }

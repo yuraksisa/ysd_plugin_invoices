@@ -41,7 +41,7 @@ module Sinatra
           if params[:reference_source] and params[:reference]
             @invoices = ::Yito::Model::Invoices::CustomerInvoice.all(conditions: {reference_source: params[:reference_source],
                                                                                   reference: params[:reference]},
-                                                                     order: [:number.desc, :date.desc])
+                                                                     order: [:date.desc])
             load_page :invoices_list
           else
             status 404

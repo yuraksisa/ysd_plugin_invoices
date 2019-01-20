@@ -1,6 +1,6 @@
 <div id="page_wrapper">
   <% if @invoices.size == 0 %>
-    <p class="text-center"><strong><%=t.entitymanagement.no_data%></strong></p>
+    <p class="text-center"><%=t.entitymanagement.no_data%></p>
   <% else %>
     <table id="invoices_list_table" class="table table-striped">
       <thead>
@@ -9,35 +9,48 @@
         <th><%= t.invoices_list.table.number %></th>
         <th><%= t.invoices_list.table.concept %></th>
         <th><%= t.invoices_list.table.total %></th>
-        <th><%= t.invoices_list.table.invoice_status %></th>
         <th><%= t.invoices_list.table.invoice_type %></th>    
+        <th><%= t.invoices_list.table.invoice_status %></th>
+        <th><%= t.invoices.table.payment_status %></th>
         <th></th>
       </tr>
       </thead>
       <tbody>
         <% @invoices.each do |invoice| %>
           <tr>
-             <td><%=invoice.date.strftime('%d-%m-%Y')%></td>
-             <td><%=invoice.serie%> <%=invoice.number%></td>
-             <td><%=invoice.concept%></td>
-             <td><%="%.2f" % invoice.total%></td>
-             <td>
-              <% if invoice.invoice_status == :draft %>
-                <span class="label label-default" style="font-size:100%"><%= t.invoices.status.draft %></span>
-              <% elsif invoice.invoice_status == :invoice %>
-                <span class="label label-success" style="font-size:100%"><%= t.invoices.status.invoice %></span>
-              <% end %>  
+             <td><span style="position:relative; top: 7px"><%=invoice.date.strftime('%d-%m-%Y')%></span></td>
+             <td><span style="position:relative; top: 7px">
+              <a href="/admin/invoices/customer-invoices/<%=invoice.id%>"><%=invoice.serie%>-<%=invoice.number%></a></span>
              </td>
+             <td><span style="position:relative; top: 7px"><%=invoice.concept%></span></td>
+             <td><span style="position:relative; top: 7px"><%="%.2f" % invoice.total%></span></td>
              <td>
               <% if invoice.invoice_type == :invoice%>
-                <span class="label label-info" style="font-size:100%"><%= t.invoices.type.invoice %></span>
+                <span class="label label-info" style="font-size:100%; position: relative; top: 7px"><%= t.invoices.type.invoice %></span>
               <%elsif invoice.invoice_type == :payment%>
-                <span class="label label-danger" style="font-size:100%"><%= t.invoices.type.payment %></span>
+                <span class="label label-danger" style="font-size:100%; position: relative; top: 7px"><%= t.invoices.type.payment %></span>
               <%end%>
              </td>
              <td>
+              <% if invoice.invoice_status == :draft %>
+                <span class="label label-default" style="font-size:100%; position: relative; top: 7px"><%= t.invoices.status.draft %></span>
+              <% elsif invoice.invoice_status == :invoice %>
+                <span class="label label-success" style="font-size:100%; position: relative; top: 7px"><%= t.invoices.status.invoice %></span>
+              <% end %>  
+             </td>
+             <td>
+              <% if invoice.payment_status == :pending %>
+                <span class="label label-warning" style="font-size:100%; position: relative; top: 7px"><%= t.invoices.payment_status.pending %></span>
+              <% elsif invoice.payment_status == :paid %>
+                <span class="label label-success" style="font-size:100%; position: relative; top: 7px"><%= t.invoices.payment_status.paid %></span>
+              <% end %>  
+             </td>             
+             <td>
+                <a href="/admin/invoices/customer-invoices/<%=invoice.id%>" 
+                   class="btn btn-sm btn-default" role="button" target="blank"><i class="fa fa-file-text-o"></i>&nbsp; <%= t.invoices.form.see %></a>
                 <a href="/admin/invoices/customer-invoices/<%=invoice.id%>.pdf" 
                    class="btn btn-sm btn-default" role="button" target="blank"><i class="fa fa-print"></i>&nbsp; <%= t.invoices.form.print %></a>
+                <button class="btn btn-sm btn-default send_invoice_btn" rel="<%=invoice.id%>"><i class="fa fa-envelope-o"></i>&nbsp;  <%= t.invoices.form.send_invoice %></button>  
              </td> 
           </tr>
         <% end %>

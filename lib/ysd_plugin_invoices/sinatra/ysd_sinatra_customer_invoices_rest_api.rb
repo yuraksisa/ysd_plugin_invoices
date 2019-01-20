@@ -7,6 +7,8 @@ module Sinatra
     
      def self.registered(app)
      
+        # ------------------------------- CUSTOMER INVOICES --------------------------
+
         #                    
         # Query customer-invoices
         #
@@ -100,8 +102,6 @@ module Sinatra
         app.put "/api/customer-invoice", :allowed_usergroups => ['bookings_manager','staff'] do
           
           data_request = body_as_json(::Yito::Model::Invoices::CustomerInvoice)
-
-          p "data_request:#{data_request.inspect}"
                               
           if data = ::Yito::Model::Invoices::CustomerInvoice.get(data_request.delete(:id))
             data.transaction do
@@ -136,6 +136,79 @@ module Sinatra
         end
 
         #
+        # Add a customer invoice item
+        #
+        app.post '/api/customer-invoice/:invoice_id/invoice-item', :allowed_usergroups => ['bookings_manager', 'staff'] do
+           
+           if @invoice = ::Yito::Model::Invoices::CustomerInvoice.get(params[:invoice_id])
+             @taxes = ::Yito::Model::Invoices::Taxes.first(name: 'taxes.default')
+             request.body.rewind
+             data_request = JSON.parse(URI.unescape(request.body.read))
+             data_request.symbolize_keys!             
+             @invoice.transaction do
+               result = @invoice.add_invoice_item(data_request[:concept], 
+             	                                    data_request[:vat_type].to_sym,
+             	                                    @taxes,
+             	                                    data_request[:quantity].to_i,
+             	                                    BigDecimal.new(data_request[:price]),
+                                                  data_request[:taxes_included])
+               content_type :json
+               result.to_json
+             end  
+           else
+           	 status 404
+           end	
+
+        end
+
+        #
+        # Update a customer invoice item
+        #
+        app.put '/api/customer-invoice/:invoice_id/invoice-item/:id', :allowed_usergroups => ['bookings_manager', 'staff'] do
+
+           if @invoice = ::Yito::Model::Invoices::CustomerInvoice.get(params[:invoice_id])
+             @taxes = ::Yito::Model::Invoices::Taxes.first(name: 'taxes.default')
+             request.body.rewind
+             data_request = JSON.parse(URI.unescape(request.body.read))
+             data_request.symbolize_keys! 
+             @invoice.transaction do
+               result = @invoice.update_invoice_item(params[:id],
+               	                                     data_request[:concept],
+               	                                     data_request[:vat_type].to_sym,
+               	                                     @taxes,
+               	                                     data_request[:quantity].to_i,
+               	                                     BigDecimal.new(data_request[:price]),
+                                                     data_request[:taxes_included])
+               content_type :json
+               result.to_json               
+             end             
+           else
+             status 404
+           end  	
+
+        end
+
+        #
+        # Delete a customer invoice item
+        #
+        app.delete '/api/customer-invoice/:invoice_id/invoice-item/:id', :allowed_usergroups => ['bookings_manager', 'staff'] do
+
+           if @invoice = ::Yito::Model::Invoices::CustomerInvoice.get(params[:invoice_id])
+           	 @taxes = ::Yito::Model::Invoices::Taxes.first(name: 'taxes.default')
+             @invoice.transaction do
+               result = @invoice.destroy_invoice_item(params[:id], @taxes)
+               content_type :json
+               result.to_json
+             end  
+           else
+             status 404  
+           end
+  
+        end
+
+        # -------------------------- MANAGING INVOICES -----------------
+
+        #
         # Generate a bill
         #
         app.post '/api/customer-invoice/:invoice_id/generate-bill', allowed_usergroups: ['bookings_manager', 'staff'] do
@@ -168,72 +241,96 @@ module Sinatra
             invoice.to_json
           end  
 
-        end  
+        end          
+
+        # -------------------------- CHARGES ---------------------------
 
         #
-        # Add a customer invoice item
+        # Register a charge
         #
-        app.post '/api/customer-invoice/:invoice_id/invoice-item', :allowed_usergroups => ['bookings_manager', 'staff'] do
-           
-           if @invoice = ::Yito::Model::Invoices::CustomerInvoice.get(params[:invoice_id])
+        app.post '/api/customer-invoice/:id/charge', :allowed_usergroups => ['bookings_manager', 'booking_operator', 'staff'] do
 
-             @taxes = ::Yito::Model::Invoices::Taxes.first(name: 'taxes.default')
-             data_request = body_as_json(::Yito::Model::Invoices::CustomerInvoiceItem)
-             @invoice.transaction do
-               result = @invoice.add_invoice_item(data_request[:concept], 
-             	                                  data_request[:vat_type],
-             	                                  @taxes,
-             	                                  data_request[:quantity].to_i,
-             	                                  BigDecimal.new(data_request[:price_without_taxes]))
-               content_type :json
-               result.to_json
-             end  
-           else
-           	 status 404
-           end	
+          request.body.rewind
+          data = JSON.parse(URI.unescape(request.body.read))
+          data.symbolize_keys!
+
+          if invoice = ::Yito::Model::Invoices::CustomerInvoice.get(params[:id])
+
+            invoice.transaction do
+              # Create the charge
+              charge = Payments::Charge.new
+              charge.date = data[:date]
+              charge.amount = data[:amount]
+              charge.payment_method_id = data[:payment_method_id]
+              charge.status = :done
+              charge.currency = SystemConfiguration::Variable.get_value('payments.default_currency', 'EUR')
+              charge.save
+              # Create the invoice-charge
+              invoice_charge = ::Yito::Model::Invoices::CustomerInvoiceCharge.new
+              invoice_charge.customer_invoice = invoice
+              invoice_charge.charge = charge
+              invoice_charge.save
+              # Update the invoice
+              invoice.total_paid += charge.amount
+              invoice.total_pending -= charge.amount
+              invoice.total_pending = 0 if invoice.total_pending < 0
+              invoice.payment_status = :paid if invoice.total_pending == 0
+              invoice.save
+              # Newsfeed
+              ::Yito::Model::Newsfeed::Newsfeed.create(category: 'invoicing',
+                    action: 'add_customer_invoice_charge',
+                    identifier: invoice.id.to_s,
+                    description: YsdPluginInvoices.r18n.t.invoices_newsfeed.added_invoice_charge("%.2f" % charge.amount, charge.payment_method_id),
+                    attributes_updated: {total_paid: invoice.total_paid, total_pending: invoice.total_pending, payment_status: invoice.payment_status}.to_json)
+              invoice.reload
+            end
+            content_type :json
+            status 200
+            invoice.to_json
+          else
+            status 404
+          end
 
         end
 
         #
-        # Update a customer invoice item
+        # Delete a charge
         #
-        app.put '/api/customer-invoice/:invoice_id/invoice-item/:id', :allowed_usergroups => ['bookings_manager', 'staff'] do
+        app.delete '/api/customer-invoice/:id/charge/:charge_id', :allowed_usergroups => ['booking_manager', 'booking_operator', 'staff'] do
+          
+          if invoice_charge = ::Yito::Model::Invoices::CustomerInvoiceCharge.first(:customer_invoice_id => params[:id],
+                                                                                   :charge_id => params[:charge_id])
+            invoice = invoice_charge.customer_invoice
 
-           if @invoice = ::Yito::Model::Invoices::CustomerInvoice.get(params[:invoice_id])
-             @taxes = ::Yito::Model::Invoices::Taxes.first(name: 'taxes.default')
-             data_request = body_as_json(::Yito::Model::Invoices::CustomerInvoiceItem)
-             @invoice.transaction do
-               result = @invoice.update_invoice_item(params[:id],
-               	                                     data_request[:concept],
-               	                                     data_request[:vat_type],
-               	                                     @taxes,
-               	                                     data_request[:quantity].to_i,
-               	                                     BigDecimal.new(data_request[:price_without_taxes]))
-               content_type :json
-               result.to_json               
-             end             
-           else
-             status 404
-           end  	
+            old_total_paid = invoice.total_paid
+            old_total_pending = invoice.total_pending
 
-        end
+            charge = invoice_charge.charge
 
-        #
-        # Delete a customer invoice item
-        #
-        app.delete '/api/customer-invoice/:invoice_id/invoice-item/:id', :allowed_usergroups => ['bookings_manager', 'staff'] do
+            invoice_charge.transaction do
+              # Updat the invoice
+              invoice.total_paid -= charge.amount
+              invoice.total_pending += charge.amount
+              invoice.payment_status = :pending if invoice.total_pending > 0
+              invoice.save
+              # Destroy the charge
+              charge.destroy
+              invoice_charge.destroy
+              # Newsfeed   
+              ::Yito::Model::Newsfeed::Newsfeed.create(category: 'invoicing',
+                                                       action: 'destroyed_customer_invoice_charge',
+                                                       identifier: invoice.id.to_s,
+                                                       description: YsdPluginInvoices.r18n.t.invoices_newsfeed.destroyed_invoice_charge("%.2f" % charge.amount, charge.payment_method_id),
+                                                       attributes_updated: {total_paid: invoice.total_paid, total_pending: invoice.total_pending, payment_status: invoice.payment_status}.to_json)
+            end
+            invoice.reload
+            content_type :json
+            invoice.to_json
+          else
+            logger.error("Customer invoice charge #{params[:charge_id]} for #{params[:customer_invoice_id]} not found")
+            status 404
+          end
 
-           if @invoice = ::Yito::Model::Invoices::CustomerInvoice.get(params[:invoice_id])
-           	 @taxes = ::Yito::Model::Invoices::Taxes.first(name: 'taxes.default')
-             @invoice.transaction do
-               result = @invoice.destroy_invoice_item(params[:id], @taxes)
-               content_type :json
-               result.to_json
-             end  
-           else
-             status 404  
-           end
-  
         end
 
      end

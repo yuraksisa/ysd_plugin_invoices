@@ -116,6 +116,12 @@ module Yito
               t.column(4).style(:align => :right, size: 10, width: 100)
             end            
 
+            if customer_invoice.invoice_status == :draft
+              pdf.rotate(30, origin: [250, 150]) do
+                pdf.draw_text YsdPluginInvoices.r18n.t.invoices_pdf.draft , size: 90, at: [180, 300]
+              end  
+            end
+
             return pdf
 
           end          

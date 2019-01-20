@@ -35,63 +35,65 @@ module Yito
 
 	    end
 
-        #
-        # Add item data to the totals
-        #
+      #
+      # Add item data to the totals
+      #
 	    def add_item_data(item_totals, taxes)
 
-              init_totals
-              init_taxes(taxes)
+        init_totals
+        init_taxes(taxes)
 
-              self.total_without_taxes_standard += item_totals.total_without_taxes if item_totals.vat_type == 'standard' 
-              self.total_without_taxes_reduced += item_totals.total_without_taxes if item_totals.vat_type == 'reduced'
-              self.total_without_taxes_reduced_2 += item_totals.total_without_taxes if item_totals.vat_type == 'reduced_2'
-              self.total_without_taxes_reduced_3 += item_totals.total_without_taxes if item_totals.vat_type == 'reduced_3'    
-              
-              self.taxes_standard += item_totals.taxes if item_totals.vat_type == 'standard' 
-              self.taxes_reduced += item_totals.taxes if item_totals.vat_type == 'reduced'
-              self.taxes_reduced_2 += item_totals.taxes if item_totals.vat_type == 'reduced_2'
-              self.taxes_reduced_3 += item_totals.taxes if item_totals.vat_type == 'reduced_3'
+        self.total_without_taxes_standard += item_totals.total_without_taxes if item_totals.vat_type == 'standard' 
+        self.total_without_taxes_reduced += item_totals.total_without_taxes if item_totals.vat_type == 'reduced'
+        self.total_without_taxes_reduced_2 += item_totals.total_without_taxes if item_totals.vat_type == 'reduced_2'
+        self.total_without_taxes_reduced_3 += item_totals.total_without_taxes if item_totals.vat_type == 'reduced_3'    
+        
+        self.taxes_standard += item_totals.taxes if item_totals.vat_type == 'standard' 
+        self.taxes_reduced += item_totals.taxes if item_totals.vat_type == 'reduced'
+        self.taxes_reduced_2 += item_totals.taxes if item_totals.vat_type == 'reduced_2'
+        self.taxes_reduced_3 += item_totals.taxes if item_totals.vat_type == 'reduced_3'
 
-              self.subtotal += item_totals.total_without_taxes
-              self.total_taxes += item_totals.taxes
-              self.total += item_totals.total              
+        self.subtotal += item_totals.total_without_taxes
+        self.total_taxes += item_totals.taxes
+        self.total += item_totals.total
+                      
 	    end
 	    
 	    #
 	    # Update item data to the totals
 	    #
-        def update_item_data(item_totals, old_item_totals, taxes)
+      def update_item_data(item_totals, old_item_totals, taxes)
 
-              init_totals
-              init_taxes(taxes)
+        init_totals
+        init_taxes(taxes)
 
-              substract_item_data(old_item_totals, taxes)
-              add_item_data(item_totals, taxes)
+        substract_item_data(old_item_totals, taxes)
+        add_item_data(item_totals, taxes)
 
-        end	
+      end	
 
 	    #
 	    # Substract item data to the totals
 	    #
 	    def substract_item_data(item_totals, taxes)
 
-              init_totals
-              init_taxes(taxes)
+        init_totals
+        init_taxes(taxes)
 
-              self.total_without_taxes_standard -= item_totals.total_without_taxes if item_totals.vat_type == 'standard' 
-              self.total_without_taxes_reduced -= item_totals.total_without_taxes if item_totals.vat_type == 'reduced'
-              self.total_without_taxes_reduced_2 -= item_totals.total_without_taxes if item_totals.vat_type == 'reduced_2'
-              self.total_without_taxes_reduced_3 -= item_totals.total_without_taxes if item_totals.vat_type == 'reduced_3'    
-              
-              self.taxes_standard -= item_totals.taxes if item_totals.vat_type == 'standard' 
-              self.taxes_reduced -= item_totals.taxes if item_totals.vat_type == 'reduced'
-              self.taxes_reduced_2 -= item_totals.taxes if item_totals.vat_type == 'reduced_2'
-              self.taxes_reduced_3 -= item_totals.taxes if item_totals.vat_type == 'reduced_3'
+        self.total_without_taxes_standard -= item_totals.total_without_taxes if item_totals.vat_type == 'standard' 
+        self.total_without_taxes_reduced -= item_totals.total_without_taxes if item_totals.vat_type == 'reduced'
+        self.total_without_taxes_reduced_2 -= item_totals.total_without_taxes if item_totals.vat_type == 'reduced_2'
+        self.total_without_taxes_reduced_3 -= item_totals.total_without_taxes if item_totals.vat_type == 'reduced_3'    
+        
+        self.taxes_standard -= item_totals.taxes if item_totals.vat_type == 'standard' 
+        self.taxes_reduced -= item_totals.taxes if item_totals.vat_type == 'reduced'
+        self.taxes_reduced_2 -= item_totals.taxes if item_totals.vat_type == 'reduced_2'
+        self.taxes_reduced_3 -= item_totals.taxes if item_totals.vat_type == 'reduced_3'
 
-              self.subtotal -= item_totals.total_without_taxes
-              self.total_taxes -= item_totals.taxes
-              self.total -= item_totals.total
+        self.subtotal -= item_totals.total_without_taxes
+        self.total_taxes -= item_totals.taxes
+        self.total -= item_totals.total
+
 	    end 	
 
 	    private

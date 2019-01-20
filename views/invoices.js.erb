@@ -4,8 +4,49 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
          function($, EntityManagement, EntityManagementComplementHooks, tmpl, YSDGui) {
     
   var invoicesHook = {
-     
-       
+    
+
+    paymentMethodDescription : {
+       'cash':'<%= t.booking_payment_method.cash%>',
+       'bank_transfer':'<%= t.booking_payment_method.bank_transfer%>',
+       'credit_card':'<%= t.booking_payment_method.credit_card%>',
+       'redsys256':'<%= t.booking_payment_method.redsys256%>',
+       'santander':'<%= t.booking_payment_method.santander%>',
+       'pi4b':'<%= t.booking_payment_method.pi4b%>',
+       'cecabank':'<%= t.booking_payment_method.cecabank%>',
+       'paypal_standard':'<%= t.booking_payment_method.paypal_standard%>',                                      
+    },     
+    
+    chargeStatusDescription : {
+       'pending': '<%= t.charge_status.pending %>',
+       'processing': '<%= t.charge_status.processing %>',
+       'done': '<%= t.charge_status.done %>',
+       'denied': '<%= t.charge_status.denied %>',
+       'refunded': '<%= t.charge_status.refunded%>'
+    },
+
+    chargeStatusClass : function(entity) {
+      var className = null;
+      switch (entity.status) {
+        case 'pending' :
+          className = 'pending-status';
+          break;
+        case 'processing':
+          className = 'doing-status';
+          break; 
+        case 'done':
+          className = 'done-status';
+          break;
+        case 'denied':
+          className = 'error-status';
+          break;
+        case 'refunded':
+          className = 'error-status';
+          break;          
+      }
+      return className;
+    },       
+
     entityKey : function(entity) {
       return entity.id;
     },
@@ -58,7 +99,19 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
             if (ui.item && ui.item.value) {
                 $("#customer").val(ui.item.label);
                 $("#customer_id").val(ui.item.value);
+                $('#customer_type').val(ui.item.type);
+                $('#customer_full_name').val(ui.item.fullname);
                 $("#customer_document_id").val(ui.item.document_id);
+                if (ui.item.type == 'individual') {
+                  $('#customer_full_name_container').hide();
+                  $('#customer_document_id_container').removeClass('col-md-3');
+                  $('#customer_document_id_container').addClass('col-md-6');
+                }
+                else {
+                  $('#customer_full_name_container').show();
+                  $('#customer_document_id_container').removeClass('col-md-6');
+                  $('#customer_document_id_container').addClass('col-md-3');                  
+                }
                 return false;
             }
         }
@@ -101,12 +154,29 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
         invoicesManagement.controller.sendInvoiceButtonClick();
       });
 
+      // Set up new charge button click
+      $('#new_charge').bind('click', function(){
+        invoicesManagement.controller.prepareFormNewCharge(entity);       
+      });
+
+      // Remove a charge
+      $('.remove-invoice-charges').bind('click', function() {
+        if (confirm('<%=t.invoices.form.charges.confirm_remove_charge%>')){
+          var invoiceId = $(this).attr('data-customer-invoice-id');
+          var chargeId = $(this).attr('data-charge-id');
+          invoicesManagement.model.remove_charge(invoiceId, chargeId);
+        }      
+      });      
+
     },
 
     adaptFormData: function(data) {      
       delete data.customer;
       if (!($('#manual_concept').is(':checked'))) {
         data.concept = $('select[name=concept]').val();
+      }
+      if ($('select[name=serie]').val()=='') {
+        data.serie = null;
       }
       return data;
     },
@@ -188,6 +258,12 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
             if (!($('#item_manual_concept').is(':checked'))) {
               request.concept = $('form[name=invoice_item_form] select[name=concept]').val();
             }
+            if ($('#invoice_taxes_included').is(':checked')) {
+              request.taxes_included = true;
+            }
+            else {
+              request.taxes_included = false;
+            }
             var requestJSON = encodeURIComponent(JSON.stringify(request));
             var url = '/api/customer-invoice/'+this.invoice_id+'/invoice-item';
 
@@ -221,7 +297,13 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
             var request = $('form[name=invoice_item_form]').formParams(false);
             if (!($('#item_manual_concept').is(':checked'))) {
               request.concept = $('form[name=invoice_item_form] select[name=concept]').val();
-            }            
+            }
+            if ($('#invoice_taxes_included').is(':checked')) {
+              request.taxes_included = true;
+            }
+            else {
+              request.taxes_included = false;
+            }                        
             var requestJSON = encodeURIComponent(JSON.stringify(request));
             var url = '/api/customer-invoice/'+this.invoice_id+'/invoice-item/'+invoice_item_id;
 
@@ -250,7 +332,41 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
                     }
                 }                    
       	    });
-        }        
+        },
+        create_charge: function() { /* Create an invoice charge */
+           var formdata = $('form[name="charge"]').formParams(true);
+           var json_request = JSON.stringify(formdata);
+           $.ajax({
+               type: 'POST',
+               data : json_request,
+               url : '/api/customer-invoice/'+this.invoice.id+'/charge',
+               success: function(data, textStatus, jqXHR) {
+                 invoicesManager.model.synchronizeCurrentEntity(data);
+                 invoicesManager.model.change_state('entity_updated_successfully');
+                 alert('<%=t.invoices.form.charges.charge_create_successfully%>');
+                 $('#new_charge_modal').modal('hide');
+               },
+               error: function(data, textStatus, jqXHR) {
+                 alert('<%=t.invoices.form.charges.charge_create_error%>');
+               }
+           });
+        },
+        remove_charge: function(invoiceId, chargeId) { /* Remove an invoice charge */
+
+          $.ajax({
+            type: 'DELETE',
+            url : '/api/customer-invoice/'+invoiceId+'/charge/'+chargeId,
+            success: function(data, textStatus, jqXHR) {
+              invoicesManager.model.synchronizeCurrentEntity(data);
+              invoicesManager.model.change_state('entity_updated_successfully');
+              alert('<%=t.invoices.form.charges.charge_removed_successfully%>');
+            },
+            error: function(data, textStatus, jqXHR) {
+              alert('<%=t.invoices.form.charges.charge_removed_error%>');
+            }
+          }); 
+
+        }       
     },
 
     controller: {
@@ -309,7 +425,25 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
 
     	updateInvoiceItemButtonClick: function(invoice_item_id) {
     		invoicesManagement.model.update_invoice_item(invoice_item_id);
-    	}
+    	},
+
+      prepareFormNewCharge: function(entity) {
+        var html = tmpl('new_charge_script', {entity: entity});
+
+        $('#new_charge_modal .modal-body').html(html);
+        $('#new_charge_modal').modal('show');
+
+        $('#new_charge_button').unbind('click');
+        $('#new_charge_date').datetimepicker(
+            {controlType: 'select', showTimezone: false, useLocalTimezone: true, 
+             numberOfMonths:1, dateFormat: 'dd/mm/yy'},
+            '<%= session[:locale] %>');
+        $('#new_charge_date').datetimepicker('setDate', new Date());
+        $('#new_charge_amount').autoNumeric('init',{aSep:''});
+        $('#new_charge_button').bind('click', function(){
+           invoicesManagement.model.create_charge();
+        });          
+      }
 
     },
 

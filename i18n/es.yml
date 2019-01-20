@@ -8,21 +8,26 @@ invoices:
     total: Total
     invoice_status: Estado
     invoice_type: Tipo
+    payment_status: Pago
     invoice_sent: Enviado
   form:
     invoicing: Facturar
     print: Imprimir
     send_invoice: Enviar
+    see: Ver
     lines: Líneas de la factura
     type:
       label: Tipo
     serie:
       label: Serie
+    select_serie: Seleccionar serie  
     date:
       label: Fecha
     customer:
       label: Cliente
     new_customer: Nuevo cliente  
+    customer_company:
+      label: Nombre de la empresa
     customer_document_id:
       label: NIF/CIF      
     concept:
@@ -46,7 +51,9 @@ invoices:
       subtotal: Subtotal
       taxes: Impuestos 
       total: Total
-      confirm_delete_item: ¿Está seguro que desea eliminar la línea de factura?  
+      total_paid: Pagado
+      total_pending: Pendiente
+      confirm_delete_item: ¿Está seguro que desea eliminar la línea de factura?      
     new_invoice_line: Nueva línea de factura
     invoice_item:
       concept:
@@ -55,8 +62,24 @@ invoices:
         label: Cantidad    
       vat_type:
         label: Tipo de impuesto
-      price_without_taxes:
-        label: Precio (sin impuestos)
+      price:
+        label: Precio
+      taxes_included:
+        label: Impuestos incluidos
+    charges:
+      charges_title: Cobros
+      charge_date: Fecha
+      charge_payment_method: Forma pago
+      charge_amount: Importe
+      charge_status: Estado    
+      no_charges: No se ha recibido ningún cobro
+      new_charge: Nuevo cobro
+      charge_done: Cobro realizado
+      confirm_remove_charge: ¿Está seguro que desea eliminar el cobro?
+      charge_create_successfully: Cobro creado con éxito
+      charge_create_error: Error creando cobro         
+      charge_removed_successfully: Cobro eliminado con éxito
+      charge_removed_error: Error eliminando cobro          
     notifications:
       title: Notificaciones
       table:
@@ -94,10 +117,15 @@ invoices:
     invoice: Facturada
   type:
     invoice: Factura
-    payment: Abono    
+    payment: Abono
+  payment_status:
+    paid: Pagado
+    pending: Pendiente         
 customer_invoices:
   title: Facturas de cliente
   description: Facturas de cliente
+customer_invoice_model:
+  charge_description: Factura de cliente %1  
 invoice_type:
   invoice: Factura
   payment: Abono
@@ -132,3 +160,7 @@ invoices_mailer:
 invoices_newsfeed:
   notification_sent: Enviada factura a %1
   bill_generated: Factura emitida
+  added_invoice_charge: Registrado cobro %1 (forma de pago %2)
+  destroyed_invoice_charge: Eliminado cobro %1 (forma de pago %2)
+invoices_pdf:
+  draft: Borrador  

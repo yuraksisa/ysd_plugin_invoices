@@ -14,14 +14,24 @@ module Yito
         property :date, DateTime
 
         property :concept, Text
-        property :payment_method, String
-        property :payment_term, String    
+        
+        # Information about the scheduled payment
+        property :payment_method, String # cheque - efectivo - transferencia - pagaré
+        property :payment_term, String   # 0 - 15 - 30 - 60 - 90
+        property :expected_payment_date, Date
+
+        # Information about the payments
+        property :payment_on_account, Decimal, precision: 10, scale: 2, default: 0
+        property :payment_status, Enum[:pending, :paid], default: :pending
+        property :total_paid, Decimal, precision: 10, scale: 2, default: 0
+        property :total_pending, Decimal, precision: 10, scale: 2, default: 0  
             
         property :reference_source, String, length: 100
         property :reference, String, length: 100
 
         belongs_to :customer, 'Yito::Model::Customers::Customer', :child_key => [:customer_id], :parent_key => [:id]
 
+        property :customer_type, Enum[:individual, :legal_entity], default: :individual
         property :customer_full_name, String, length: 100
         property :customer_document_id, String, length: 50
         belongs_to :customer_address, 'LocationDataSystem::Address', required: false 
@@ -40,6 +50,9 @@ module Yito
         property :invoice_sent, Boolean, default: false
         property :invoice_sent_date, DateTime
 
+        has n, :customer_invoice_charges, 'CustomerInvoiceCharge', :child_key => [:customer_invoice_id], :parent_key => [:id]
+        has n, :charges, 'Payments::Charge', :through => :customer_invoice_charges
+
         extend Yito::Model::Finder
 
         before :create do |customer_invoice|
@@ -52,26 +65,25 @@ module Yito
         #
         def copy_customer_data
 
-            if invoice_status != :invoice
-                if customer
-                  
-                    if customer.customer_type == :invidual
-                      self.customer_full_name = customer.full_name
-                      self.customer_document_id = customer.document_id
-                    elsif customer.customer_type == :legal_entity
-                      self.customer_full_name = customer.company_name
-                      self.customer_document_id = customer.company_document_id
+            if self.invoice_status != :invoice
+                if self.customer
+                    self.customer_type = self.customer.customer_type
+                    if self.customer.customer_type == :individual
+                      self.customer_full_name = self.customer.full_name
+                      self.customer_document_id = self.customer.document_id
+                    elsif self.customer.customer_type == :legal_entity
+                      self.customer_full_name = self.customer.company_name
+                      self.customer_document_id = self.customer.company_document_id
                     end
-
-                    if customer.invoice_address
+                    if self.customer.invoice_address
                         self.customer_address = LocationDataSystem::Address.new if self.customer_address.nil?
-                        self.customer_address.street = customer.invoice_address.street
-                        self.customer_address.number = customer.invoice_address.number
-                        self.customer_address.complement = customer.invoice_address.complement
-                        self.customer_address.city = customer.invoice_address.city
-                        self.customer_address.state = customer.invoice_address.state
-                        self.customer_address.zip = customer.invoice_address.zip
-                        self.customer_address.country = customer.invoice_address.country
+                        self.customer_address.street = self.customer.invoice_address.street
+                        self.customer_address.number = self.customer.invoice_address.number
+                        self.customer_address.complement = self.customer.invoice_address.complement
+                        self.customer_address.city = self.customer.invoice_address.city
+                        self.customer_address.state = self.customer.invoice_address.state
+                        self.customer_address.zip = self.customer.invoice_address.zip
+                        self.customer_address.country = self.customer.invoice_address.country
                         self.customer_address.save
                     end 
                 end   
@@ -104,21 +116,43 @@ module Yito
         #
         # Add an invoice item
         #
-        def add_invoice_item(concept, vat_type, taxes, quantity, price_without_taxes)
+        # == Parameters::
+        #
+        # concept:: The invoice item concept
+        # vat_type:: Vat type
+        # taxes:: Instance of Yito::Model::Invoices::Taxes that represent the current taxes
+        # quantity:: The quantity
+        # price:: The price
+        # taxes_included:: The price includes the taxes 
+        #
+        def add_invoice_item(concept, vat_type, taxes, quantity, price, taxes_included)
   
           vat_percentage = taxes.vat_percentage(vat_type.to_s)
+          vat_tp = vat_percentage.to_f / 100
+
+          if taxes_included
+            price_without_taxes = (price / (1+vat_tp)).round(2)
+            unit_taxes = price - price_without_taxes
+          else
+            price_without_taxes = price
+            unit_taxes = (price_without_taxes * vat_tp).round(2)
+          end  
+
           # Create the invoice item
           invoice_item = CustomerInvoiceItem.new
           invoice_item.concept = concept
           invoice_item.vat_type = vat_type
           invoice_item.vat_percentage = vat_percentage
           invoice_item.quantity = quantity
+          # Unitary
           invoice_item.price_without_taxes = price_without_taxes
-          invoice_item.unit_taxes = ((invoice_item.price_without_taxes * vat_percentage) / 100.0).round(2)
-          invoice_item.total_without_taxes = (invoice_item.price_without_taxes * quantity).round(2)
+          invoice_item.unit_taxes = unit_taxes
+          # Totals
+          invoice_item.total = ((price_without_taxes + unit_taxes) * quantity).round(2)
+          invoice_item.total_without_taxes = (price_without_taxes * quantity).round(2)
           invoice_item.subtotal = invoice_item.total_without_taxes
-          invoice_item.taxes = (invoice_item.total_without_taxes * vat_percentage / 100.0).round(2)
-          invoice_item.total = (invoice_item.total_without_taxes + invoice_item.taxes).round(2)
+          invoice_item.taxes = invoice_item.total - invoice_item.subtotal
+          # Invoice
           invoice_item.customer_invoice = self
           invoice_item.save
           # Update totals
@@ -133,22 +167,35 @@ module Yito
         #
         # Update invoice item
         #
-        def update_invoice_item(id, concept, vat_type, taxes, quantity, price_without_taxes)
+        def update_invoice_item(id, concept, vat_type, taxes, quantity, price, taxes_included)
 
            if invoice_item = CustomerInvoiceItem.get(id)
+
               vat_percentage = taxes.vat_percentage(vat_type.to_s)
+              vat_tp = vat_percentage.to_f / 100
+
+              if taxes_included
+                price_without_taxes = (price / (1+vat_tp)).round(2)
+                unit_taxes = price - price_without_taxes
+              else
+                price_without_taxes = price
+                unit_taxes = (price_without_taxes * vat_tp).round(2)
+              end  
+
               old_invoice_item = invoice_item.clone
               invoice_item.concept = concept
               invoice_item.vat_type = vat_type
               invoice_item.vat_percentage = vat_percentage
               invoice_item.quantity = quantity
+              # Unitary
               invoice_item.price_without_taxes = price_without_taxes
-              invoice_item.unit_taxes = ((invoice_item.price_without_taxes * vat_percentage) / 100.0).round(2)
-              invoice_item.total_without_taxes = (invoice_item.price_without_taxes * quantity).round(2)
+              invoice_item.unit_taxes = unit_taxes
+              # Totals
+              invoice_item.total = ((price_without_taxes + unit_taxes) * quantity).round(2)
+              invoice_item.total_without_taxes = (price_without_taxes * quantity).round(2)
               invoice_item.subtotal = invoice_item.total_without_taxes
-              invoice_item.taxes = ((invoice_item.total_without_taxes * vat_percentage) / 100.0).round(2)
-              invoice_item.total = (invoice_item.total_without_taxes + invoice_item.taxes).round(2)
-              invoice_item.customer_invoice = self
+              invoice_item.taxes = invoice_item.total - invoice_item.subtotal
+              # Save invoice item
               invoice_item.save             
               # Update total
               update_item_data(invoice_item, old_invoice_item, taxes)
@@ -189,6 +236,7 @@ module Yito
              relationships.store(:customer, {include: [:invoice_address]})
              relationships.store(:items, {})
              relationships.store(:customer_address, {})
+             relationships.store(:charges, {})
              super(options.merge({:relationships => relationships}))
            end
 
