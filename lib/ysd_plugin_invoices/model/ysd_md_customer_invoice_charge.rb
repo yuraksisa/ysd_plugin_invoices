@@ -60,8 +60,11 @@ module Yito
         def charge_source_description
       
           if customer_invoice and customer_invoice.id
-            YsdPluginInvoices.r18n.t.customer_invoice_model.charge_description(customer_invoice.id)
-   
+            if customer_invoice.invoice_type == :invoice
+              YsdPluginInvoices.r18n.t.customer_invoice_model.charge_description(customer_invoice.id)
+            else
+              YsdPluginInvoices.r18n.t.customer_invoice_model.payment_description(customer_invoice.id)
+            end  
           end
 
         end

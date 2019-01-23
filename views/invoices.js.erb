@@ -25,6 +25,14 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
        'refunded': '<%= t.charge_status.refunded%>'
     },
 
+    paymentStatusDescription : {
+       'pending': '<%= t.charge_status.pending %>',
+       'processing': '<%= t.charge_status.processing %>',
+       'done': '<%= t.charge_status.refunded %>',
+       'denied': '<%= t.charge_status.denied %>',
+       'refunded': '<%= t.charge_status.refunded%>'
+    },
+
     chargeStatusClass : function(entity) {
       var className = null;
       switch (entity.status) {
@@ -46,6 +54,28 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
       }
       return className;
     },       
+
+    paymentStatusClass : function(entity) {
+      var className = null;
+      switch (entity.status) {
+        case 'pending' :
+          className = 'pending-status';
+          break;
+        case 'processing':
+          className = 'doing-status';
+          break; 
+        case 'done':
+          className = 'error-status';
+          break;
+        case 'denied':
+          className = 'error-status';
+          break;
+        case 'refunded':
+          className = 'error-status';
+          break;          
+      }
+      return className;
+    },  
 
     entityKey : function(entity) {
       return entity.id;

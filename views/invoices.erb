@@ -249,7 +249,7 @@
                           </div>    
                           <div class="form-group">
                             <label class="css-input switch switch-sm switch-primary" style="margin-left: 15px">
-                                <input type="checkbox" id="manual_concept" checked=""><span></span> <%= t.invoices.form.manual_concept.label %>
+                                <input type="checkbox" id="manual_concept" checked="" <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>><span></span> <%= t.invoices.form.manual_concept.label %>
                             </label>
                           </div>                                                   
                         </div>
@@ -519,7 +519,13 @@
                                 <td></td>
                             </tr>
                             <tr>
-                                <td colspan="4" class="text-right text-uppercase"><strong><%= t.invoices.form.invoice_line_table.total_paid %>:</strong></td>
+                                <td colspan="4" class="text-right text-uppercase">
+                                  <%% if (entity.invoice_type == 'invoice') { %>
+                                  <strong><%= t.invoices.form.invoice_line_table.total_paid %>:</strong>
+                                  <%% } else { %>
+                                  <strong><%= t.invoices.form.invoice_line_table.total_returned %>:</strong>  
+                                  <%% } %>
+                                </td>
                                 <td class="text-right"><strong><%% if (entity.invoice_type == 'payment') { %>-<%%}%><%%=new Number(entity.total_paid).toFixed(2)%></strong></td>
                                 <td></td>
                             </tr>
@@ -549,11 +555,21 @@
             <div class="block ">
               <div class="block-header bg-gray-lighter">
                 <%% if (entity.invoice_status == 'invoice' && entity.payment_status != 'paid') { %>
-                <div class="block-options-simple">
-                    <button id="new_charge" class="btn btn-xs btn-default" type="button"><%=t.invoices.form.charges.new_charge%></button>
+                <div class="block-options-simple">  
+                    <button id="new_charge" class="btn btn-xs btn-default" type="button">
+                      <%% if (entity.invoice_type == 'invoice') { %>
+                        <%=t.invoices.form.charges.new_charge%>
+                      <%% } else { %> 
+                        <%=t.invoices.form.charges.new_payment%>
+                      <%% } %> 
+                    </button>
                 </div>              
                 <%% } %>
+                <%% if (entity.invoice_type == 'invoice') { %>  
                 <h3 class="block-title"><%= t.invoices.form.charges.charges_title %></h3>
+                <%% } else { %>
+                <h3 class="block-title"><%= t.invoices.form.charges.payments_title %></h3>
+                <%% } %>
               </div>
               <div class="block-content">
                 <div>
@@ -571,13 +587,21 @@
                       </thead>
                       <tbody class="table-tbody">
                         <%% for (var chargeIdx=entity.charges.length-1; chargeIdx >=0 ; chargeIdx--) { %>
-                          <tr class="table-row">
+                          <tr class="table-row <%% if (entity.invoice_type == 'payment') {%>text-danger<%% }%>">
                              <td class="table-cell text-center"><span style="position:relative; top: 7px"><%%=entity.charges[chargeIdx].id%></span></td>
                              <td class="table-cell text-center"><span style="position:relative; top: 7px"><%%=self.formatDate(entity.charges[chargeIdx].date, 'dd.MM.yyyy HH:mm')%></span></td>
                              <td class="table-cell text-center">
                                 <span style="position:relative; top: 7px"><%%= self.model.entityHooks[0].paymentMethodDescription[entity.charges[chargeIdx].payment_method_id]%></span></td>
                              <td class="table-cell text-right"><span style="position:relative; top: 7px"><%%= new Number(entity.charges[chargeIdx].amount).toFixed(2) %></span></td>
-                             <td class="table-cell text-center"><span class="element-status <%%=self.model.entityHooks[0].chargeStatusClass(entity.charges[chargeIdx])%>" style="position:relative; top: 7px"><%%= self.model.entityHooks[0].chargeStatusDescription[entity.charges[chargeIdx].status] %></span></td>
+                             <td class="table-cell text-center">
+                               <%% if (entity.invoice_type == 'invoice') {%>
+                               <span class="element-status <%%=self.model.entityHooks[0].chargeStatusClass(entity.charges[chargeIdx])%>" style="position:relative; top: 7px">
+                               <%%= self.model.entityHooks[0].chargeStatusDescription[entity.charges[chargeIdx].status] %></span>
+                               <%% } else { %>
+                               <span class="element-status <%%=self.model.entityHooks[0].paymentStatusClass(entity.charges[chargeIdx])%>" style="position:relative; top: 7px">
+                               <%%= self.model.entityHooks[0].paymentStatusDescription[entity.charges[chargeIdx].status] %></span>                                
+                               <%% } %>
+                             </td>
                              <td class="table-cell">
                               <%% if (['bank_transfer','credit_card','cash'].indexOf(entity.charges[chargeIdx].payment_method_id)>-1) {%>
                               <span class="btn btn-sm btn-default remove-invoice-charges remove-icon" data-charge-id="<%%=entity.charges[chargeIdx].id%>" data-customer-invoice-id="<%%=entity.id%>" role="button"><i class="fa fa-trash" style="position:relative; top: -2px"></i>&nbsp;Eliminar</span>
@@ -588,7 +612,11 @@
                       </tbody>
                     </table>
                   <%% } else { %>
-                  <p class="text-center"><%=t.invoices.form.charges.no_charges%></p>
+                    <%% if (entity.invoice_type == 'invoice') { %>  
+                      <p class="text-center"><%=t.invoices.form.charges.no_charges%></p>
+                    <%% } else { %>
+                      <p class="text-center"><%=t.invoices.form.charges.no_payments%></p>
+                    <%% } %>
                   <%% } %>
                 </div>  
               </div>

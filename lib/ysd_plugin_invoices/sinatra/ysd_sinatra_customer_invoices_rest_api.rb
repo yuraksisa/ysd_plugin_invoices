@@ -259,8 +259,14 @@ module Sinatra
             invoice.transaction do
               # Create the charge
               charge = Payments::Charge.new
+              if invoice.invoice_type == :payment
+                charge.payment_type = :payment
+                charge.amount = -1 * BigDecimal.new(data[:amount])
+              else
+                charge.payment_type = :charge
+                charge.amount = data[:amount]
+              end  
               charge.date = data[:date]
-              charge.amount = data[:amount]
               charge.payment_method_id = data[:payment_method_id]
               charge.status = :done
               charge.currency = SystemConfiguration::Variable.get_value('payments.default_currency', 'EUR')

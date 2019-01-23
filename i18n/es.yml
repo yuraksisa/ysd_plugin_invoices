@@ -8,7 +8,7 @@ invoices:
     total: Total
     invoice_status: Estado
     invoice_type: Tipo
-    payment_status: Pago
+    payment_status: Pago/Devolución
     invoice_sent: Enviado
   form:
     invoicing: Facturar
@@ -52,6 +52,7 @@ invoices:
       taxes: Impuestos 
       total: Total
       total_paid: Pagado
+      total_returned: Devuelto
       total_pending: Pendiente
       confirm_delete_item: ¿Está seguro que desea eliminar la línea de factura?      
     new_invoice_line: Nueva línea de factura
@@ -68,18 +69,21 @@ invoices:
         label: Impuestos incluidos
     charges:
       charges_title: Cobros
+      payments_title: Devolución
       charge_date: Fecha
       charge_payment_method: Forma pago
       charge_amount: Importe
       charge_status: Estado    
       no_charges: No se ha recibido ningún cobro
+      no_payments: No se ha realizado ningún pago
       new_charge: Nuevo cobro
-      charge_done: Cobro realizado
-      confirm_remove_charge: ¿Está seguro que desea eliminar el cobro?
-      charge_create_successfully: Cobro creado con éxito
-      charge_create_error: Error creando cobro         
-      charge_removed_successfully: Cobro eliminado con éxito
-      charge_removed_error: Error eliminando cobro          
+      new_payment: Nueva devolución
+      charge_done: Cobro/Devolución realizado
+      confirm_remove_charge: ¿Está seguro que desea eliminar el cobro/devolución?
+      charge_create_successfully: Cobro/devolución creado con éxito
+      charge_create_error: Error creando cobro/devolución         
+      charge_removed_successfully: Cobro/devolución eliminado con éxito
+      charge_removed_error: Error eliminando cobro/devolución          
     notifications:
       title: Notificaciones
       table:
@@ -125,7 +129,8 @@ customer_invoices:
   title: Facturas de cliente
   description: Facturas de cliente
 customer_invoice_model:
-  charge_description: Factura de cliente %1  
+  charge_description: Factura de cliente %1
+  payment_description: Abono de cliente %1  
 invoice_type:
   invoice: Factura
   payment: Abono
