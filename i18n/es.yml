@@ -111,11 +111,15 @@ invoices:
       concept: Concepto
       quantity: Cantidad
       price: Precio
-      vat_percent: "%IVA"
-      total: Total
+      vat_percent: "IVA %"
+      total: Importe
     subtotal: Subtotal
     taxes: Impuestos
     total: Total
+    economic_data: Datos económicos
+    payment_method: Forma de pago
+    notes: Observaciones
+    footer: De acuerdo con la nueva ley de Servicios de la Sociedad de la Información y Comercio Electrónico aprobada por el parlamento español y de la vigente Ley Orgánica 15 13/12/1999 de Protección de Datos
   status:
     draft: Borrador
     invoice: Facturada
