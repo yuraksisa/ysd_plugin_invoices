@@ -38,23 +38,23 @@ module Yito
                id = logo.split('/').last
                photo = Media::Photo.get(id)
                logo_path = File.join(base_path, photo.photo_url_full)	
-               pdf.image logo_path, width: 320, height: 80, at: [0, 760]
+               pdf.image logo_path, width: 300, height: 60, at: [0, 750]
             end
             	
             # ---- Company ----------------
             
-            pdf.bounding_box([400, 735], width: 150, height: 100) do
-              pdf.text "<b>#{company[:name]}</b>", inline_format: true, size: 10, align: :right
+            pdf.bounding_box([400, 745], width: 150, height: 100) do
+              pdf.text "<b>#{company[:name]}</b>", inline_format: true, size: 9, align: :right
               pdf.move_down 1
-              pdf.text "#{company[:address_1]}", size: 10, align: :right
+              pdf.text "#{company[:address_1]}", size: 9, align: :right
               pdf.move_down 1
-              pdf.text "#{company[:zip]} - #{company[:city]} (#{company[:country]})", size: 10, align: :right
+              pdf.text "#{company[:zip]} - #{company[:city]} (#{company[:country]})", size: 9, align: :right
               pdf.move_down 1
-              pdf.text "#{company[:email]}", size: 10, align: :right
+              pdf.text "#{company[:email]}", size: 9, align: :right
               pdf.move_down 1
-              pdf.text "#{company[:phone_number]}", size: 10, align: :right
+              pdf.text "#{company[:phone_number]}", size: 9, align: :right
               pdf.move_down 2
-              pdf.text "#{company[:document_id]}", size: 10, align: :right
+              pdf.text "#{company[:document_id]}", size: 9, align: :right
             end
 
             # Invoice summary ==================
@@ -205,10 +205,10 @@ module Yito
             #
             table_data = []
             table_data << [
-                         "",#"<b>#{YsdPluginInvoices.r18n.t.invoices.pdf.economic_data.upcase}</b>",
+                         "<b>#{YsdPluginInvoices.r18n.t.invoices.pdf.economic_data.upcase}</b>",
                          "<b>#{YsdPluginInvoices.r18n.t.invoices.pdf.notes.upcase}</b>"]
             table_data << [
-                         "#{YsdPluginInvoices.r18n.t.invoices.pdf.payment_method.upcase}",
+                         '',#{}"#{YsdPluginInvoices.r18n.t.invoices.pdf.payment_method.upcase}",
                          customer_invoice.notes
                         ]                    
 
