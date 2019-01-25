@@ -38,7 +38,7 @@ module Yito
                id = logo.split('/').last
                photo = Media::Photo.get(id)
                logo_path = File.join(base_path, photo.photo_url_full)	
-               pdf.image logo_path, width: 300, height: 60, at: [0, 750]
+               pdf.image logo_path, width: 200, height: 40, at: [0, 740]
             end
             	
             # ---- Company ----------------
@@ -61,32 +61,32 @@ module Yito
 
             # ---- Invoice number -----------
 
-            pdf.bounding_box([0, 655], width: 90, height: 100) do
-              pdf.text "#{YsdPluginInvoices.r18n.t.invoices.pdf.invoice_number.upcase}", inline_format: true, size: 10
+            pdf.bounding_box([0, 655], width: 70, height: 100) do
+              pdf.text "#{YsdPluginInvoices.r18n.t.invoices.pdf.invoice_number.upcase}", inline_format: true, size: 8
               pdf.move_down 3
-              pdf.text "#{YsdPluginInvoices.r18n.t.invoices.pdf.date.upcase}", inline_format: true, size: 10
+              pdf.text "#{YsdPluginInvoices.r18n.t.invoices.pdf.date.upcase}", inline_format: true, size: 8
               pdf.move_down 3
-              pdf.text "#{YsdPluginInvoices.r18n.t.invoices.pdf.reference.upcase}", inline_format: true, size: 10
+              pdf.text "#{YsdPluginInvoices.r18n.t.invoices.pdf.reference.upcase}", inline_format: true, size: 8
               pdf.move_down 3
-              pdf.text "#{YsdPluginInvoices.r18n.t.invoices.pdf.customer.upcase}", inline_format: true, size: 10
+              pdf.text "#{YsdPluginInvoices.r18n.t.invoices.pdf.customer.upcase}", inline_format: true, size: 8
               pdf.move_down 3
-              pdf.text "#{YsdPluginInvoices.r18n.t.invoices.pdf.document_id.upcase}", inline_format: true, size: 10
+              pdf.text "#{YsdPluginInvoices.r18n.t.invoices.pdf.document_id.upcase}", inline_format: true, size: 8
               pdf.move_down 3
-              pdf.text "#{YsdPluginInvoices.r18n.t.invoices.pdf.rectificative.upcase}", inline_format: true, size: 10
+              pdf.text "#{YsdPluginInvoices.r18n.t.invoices.pdf.rectificative.upcase}", inline_format: true, size: 8
             end 
 
-            pdf.bounding_box([90, 655], width: 90 , height: 100) do
-              pdf.text ": <b>#{customer_invoice.serie}#{customer_invoice.number}</b>", inline_format: true, size: 10
+            pdf.bounding_box([70, 655], width: 170 , height: 100) do
+              pdf.text ": <b>#{customer_invoice.serie}#{customer_invoice.number}</b>", inline_format: true, size: 8
               pdf.move_down 3
-              pdf.text ": <b>#{customer_invoice.date.strftime('%d-%m-%Y')}</b>", inline_format: true, size: 10
+              pdf.text ": <b>#{customer_invoice.date.strftime('%d-%m-%Y')}</b>", inline_format: true, size: 8
               pdf.move_down 3
-              pdf.text ": <b>#{customer_invoice.reference}</b>", inline_format: true, size: 10
+              pdf.text ": <b>#{customer_invoice.reference}</b>", inline_format: true, size: 8
               pdf.move_down 3
-              pdf.text ": <b>#{customer_invoice.customer_full_name}</b>", inline_format: true, size: 10
+              pdf.text ": <b>#{customer_invoice.customer_full_name}</b>", inline_format: true, size: 8
               pdf.move_down 3
-              pdf.text ": <b>#{customer_invoice.customer_document_id}</b>", inline_format: true, size: 10
+              pdf.text ": <b>#{customer_invoice.customer_document_id}</b>", inline_format: true, size: 8
               pdf.move_down 3
-              pdf.text ":", inline_format: true, size: 10
+              pdf.text ":", inline_format: true, size: 8
             end 
 
             # ---- Customer data ------------
@@ -119,7 +119,7 @@ module Yito
                          "<b>#{YsdPluginInvoices.r18n.t.invoices.pdf.table.concept.upcase}</b>",
             	           "<b>#{YsdPluginInvoices.r18n.t.invoices.pdf.table.vat_percent.upcase}</b>",
             	           "<b>#{YsdPluginInvoices.r18n.t.invoices.pdf.table.total.upcase}</b>"]
-            table_data << [customer_invoice.concept, "", ""]
+            #table_data << [customer_invoice.concept, "", ""]
             customer_invoice.items.each do |customer_invoice_item|
               table_data << [customer_invoice_item.concept,
                              "%.2f %%" % customer_invoice_item.vat_percentage,

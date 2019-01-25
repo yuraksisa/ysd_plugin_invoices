@@ -5,6 +5,7 @@ invoices:
     contact: Contacto
     customer: Cliente
     concept: Concepto
+    reference: Referencia
     total: Total
     invoice_status: Estado
     invoice_type: Tipo
@@ -25,7 +26,7 @@ invoices:
       label: Fecha
     customer:
       label: Cliente
-    new_customer: Nuevo cliente  
+    select_customer: Seleccionar cliente  
     customer_company:
       label: Nombre de la empresa
     customer_document_id:
@@ -97,6 +98,11 @@ invoices:
     bill_generation_error: Error emitiendo la factura
     email_sent_successfully: Correo electrónico enviado
     email_sent_error: Error enviando el correo electrónico
+    validations:
+      errors_summary: El formulario contiene errores. Por favor, revíselos
+      invoice_type_required: Debe seleccionar el tipo (abono o factura)
+      customer_required: Debe seleccionar el cliente
+      date_invalid: La fecha no es válida
     notes:
       group: Notas
       label: Anotaciones         

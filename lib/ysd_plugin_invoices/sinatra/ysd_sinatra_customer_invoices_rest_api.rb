@@ -37,6 +37,7 @@ module Sinatra
                 conditions = Conditions::JoinComparison.new('$or',
                                                           [Conditions::Comparison.new(:customer_full_name, '$like', "%#{search_text}%"),
                                                            Conditions::Comparison.new(:customer_document_id, '$like', "%#{search_text}%"),	
+                                                           Conditions::Comparison.new(:reference, '$eq', search_text),
                                                            Conditions::Comparison.new(:concept, '$like', "%#{search_text}%"),
                                                            Conditions::Comparison.new(:number, '$eq', search_text.to_i),
                                                            ])
@@ -56,19 +57,6 @@ module Sinatra
         
         end
         
-        #
-        # Get all customer invoices
-        #
-        app.get "/api/customer-invoices", :allowed_usergroups => ['bookings_manager','staff'] do
-
-          data = ::Yito::Model::Invoices::CustomerInvoice.all()
-
-          status 200
-          content_type :json
-          data.to_json
-
-        end
-
         #
         # Get a customer invoice
         #

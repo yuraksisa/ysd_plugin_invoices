@@ -23,7 +23,7 @@
               <a href="/admin/invoices/customer-invoices/<%=invoice.id%>"><%=invoice.serie%>-<%=invoice.number%></a></span>
              </td>
              <td><span style="position:relative; top: 7px"><%=invoice.concept%></span></td>
-             <td><span style="position:relative; top: 7px"><%="%.2f" % invoice.total%></span></td>
+             <td><span style="position:relative; top: 7px"><%="%.2f" % (invoice.total.nil? ? 0 : invoice.total)%></span></td>
              <td>
               <% if invoice.invoice_type == :invoice%>
                 <span class="label label-info" style="font-size:100%; position: relative; top: 7px"><%= t.invoices.type.invoice %></span>

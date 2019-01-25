@@ -1,6 +1,7 @@
+<%= partial 'select_customer.js'.to_sym %>
 require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 'ysdtemplate', 'YSDGui',
 	     "jquery.ui", "YSDjson2", 'bootstrap', 'jquery.ui.datepicker-es','datejs',
-	     'jquery.formparams'], 
+	     'jquery.formparams', 'jquery.validate', 'jquery.ui.datepicker.validation'], 
          function($, EntityManagement, EntityManagementComplementHooks, tmpl, YSDGui) {
     
   var invoicesHook = {
@@ -115,58 +116,11 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
       }
       else {
       	 $('#date').datepicker('setDate', new Date());
-      }
-
-      // Setup autocomplete
-      $("#customer").autocomplete({
-        source: "/api/customers-search",
-        minLength: 2,
-        focus: function( event, ui ) {
-          $( "#customer" ).val( ui.item.label );
-          return false;
-        },
-        select: function( event, ui ) {
-            if (ui.item && ui.item.value) {
-                $("#customer").val(ui.item.label);
-                $("#customer_id").val(ui.item.value);
-                $('#customer_type').val(ui.item.type);
-                $('#customer_full_name').val(ui.item.fullname);
-                $("#customer_document_id").val(ui.item.document_id);
-                if (ui.item.type == 'individual') {
-                  $('#customer_full_name_container').hide();
-                  $('#customer_document_id_container').removeClass('col-md-3');
-                  $('#customer_document_id_container').addClass('col-md-6');
-                }
-                else {
-                  $('#customer_full_name_container').show();
-                  $('#customer_document_id_container').removeClass('col-md-6');
-                  $('#customer_document_id_container').addClass('col-md-3');                  
-                }
-                return false;
-            }
-        }
-      });      
-
-      // Concept
-      if (entity && entity.concept && entity.concept.length > 0 && $('select[name=concept]').val()=='') {
-        this.textConcept();
-      }
-      else {
-        this.selectConcept();
-        $('#manual_concept').attr('checked', false);  
-      }
-      $('#manual_concept').bind('change', function(){
-        if ($('#manual_concept').is(':checked')) {
-          invoicesHook.textConcept();
-        }
-        else {
-          invoicesHook.selectConcept(); 
-        }
-      });      
+      }    
 
       // New customer
-      $('#new_customer_button').bind('click', function() {
-        invoicesManagement.controller.newCustomerButtonClick();
+      $('#select_customer_button').bind('click', function() {
+        invoicesManagement.controller.selectCustomerButtonClick();
       });
 
       // New invoice item
@@ -198,30 +152,16 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
         }      
       });      
 
+      invoicesManagement.view.setupValidation();
+
     },
 
     adaptFormData: function(data) {      
       delete data.customer;
-      if (!($('#manual_concept').is(':checked'))) {
-        data.concept = $('select[name=concept]').val();
-      }
       if ($('select[name=serie]').val()=='') {
         data.serie = null;
       }
       return data;
-    },
-
-    textConcept: function() {
-        $('select[name=concept]').attr('readonly', true);
-        $('textarea[name=concept]').removeAttr('readonly'); 
-        $('select[name=concept]').hide();
-        $('textarea[name=concept]').show();
-    },
-    selectConcept: function() {
-        $('textarea[name=concept]').attr('readonly', true);                  
-        $('select[name=concept]').removeAttr('readonly'); 
-        $('select[name=concept]').show();
-        $('textarea[name=concept]').hide();
     }
         
 
@@ -416,8 +356,36 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
         invoicesManagement.model.send_invoice();
       },
 
-    	newCustomerButtonClick: function() {
-    		$('#new_customer_modal').modal('show');
+      selectCustomerListener: function(event) {
+        if (event.type == 'customer_selected') {
+          if (event && event.data && event.data.id) {
+            selectCustomerView.hide();
+            $("#customer").val(event.data.full_name);
+            $("#customer_id").val(event.data.id);
+            $('#customer_type').val(event.data.customer_type);
+            $('#customer_full_name').val(event.data.full_name);
+            $("#customer_document_id").val(event.data.document_id);
+            if (event.data.customer_type == 'individual') {
+              $('#customer_full_name_container').hide();
+              $('#customer_document_id_container').removeClass('col-md-3');
+              $('#customer_document_id_container').addClass('col-md-6');
+            }
+            else {
+              $('#customer_full_name_container').show();
+              $('#customer_document_id_container').removeClass('col-md-6');
+              $('#customer_document_id_container').addClass('col-md-3');                  
+            }       
+            $('#error_summary').html('');
+            $('#error_summary').hide();            
+            $('#invoice_form').valid();     
+          }
+        }
+      },
+
+    	selectCustomerButtonClick: function() {
+        selectCustomerModel.removeListener('customer_selected', this.selectCustomerListener);
+        selectCustomerModel.addListener('customer_selected', this.selectCustomerListener);
+        selectCustomerView.show();
     	},
 
     	newInvoiceLineButtonClick: function(entity) {
@@ -513,6 +481,51 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
               });              
         	}
         },
+
+        setupValidation: function() {
+
+          $('#invoice_form').validate({
+
+              submitHandler: function(form)
+              {
+                  $('#error_summary').html('');
+                  $('#error_summary').hide();
+                  return false;
+              },
+
+              invalidHandler : function (form, validator) {
+                  $('#error_summary').html('<%=t.invoices.form.validations.errors_summary%>');
+                  $('#error_summary').show();
+              },
+
+              rules : {
+                  'invoice_type': {
+                      required: true
+                  },
+                  'customer': {
+                      required: true
+                  },
+                  'date': {
+                      validDate: true
+                  }
+              },
+
+              messages : {
+                  'invoice_type': {
+                      required: '<%=t.invoices.form.validations.invoice_type_required%>',
+                  },
+                  'customer': {
+                      required: '<%=t.invoices.form.validations.customer_required%>',
+                  },
+                  'date': {
+                      validDate: '<%=t.invoices.form.validations.date_invalid%>'
+                  }
+
+              }
+
+          });
+
+        },       
 
         textConcept: function() {
             $('form[name=invoice_item_form] select[name=concept]').attr('readonly', true);
