@@ -115,8 +115,16 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
          $('#date').datepicker('setDate', entity.date);
       }
       else {
-      	 $('#date').datepicker('setDate', new Date());
+    	   $('#date').datepicker('setDate', new Date());
       }    
+
+      // Expected payment date
+      $('#expected_payment_date').datepicker({numberOfMonths:1, 
+                             dateFormat: 'dd/mm/yy', 
+                             minDate: new Date(), defaultDate: ''}, "<%=session[:locale] || 'es'%>" );
+      if (entity && entity.expected_payment_date) {
+         $('#expected_payment_date').datepicker('setDate', entity.expected_payment_date);
+      }
 
       // New customer
       $('#select_customer_button').bind('click', function() {
@@ -342,12 +350,14 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
     controller: {
 
       generateBillButtonClick: function() {
-        if (invoicesManagement.model.invoice.items.length == 0) {
-          alert('<%=t.invoices.form.generate_bill_no_lines%>');
-        }
-        else {
-          if (confirm('<%=t.invoices.form.confirm_generate_bill%>')) {
-            invoicesManagement.model.generate_bill();
+        if ($('#invoice_form').valid()) {
+          if (invoicesManagement.model.invoice.items.length == 0) {
+            alert('<%=t.invoices.form.generate_bill_no_lines%>');
+          }
+          else {
+            if (confirm('<%=t.invoices.form.confirm_generate_bill%>')) {
+              invoicesManagement.model.generate_bill();
+            }
           }
         }
       },
@@ -499,6 +509,9 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
               },
 
               rules : {
+                  'serie': {
+                      required: '#serie:visible'
+                  },
                   'invoice_type': {
                       required: true
                   },
@@ -506,11 +519,22 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
                       required: true
                   },
                   'date': {
+                      required: true,
                       validDate: true
-                  }
+                  },
+                  'payment_method': {
+                      required: true
+                  },
+                  'expected_payment_date': {
+                      required: true,
+                      validDate: true
+                  }                  
               },
 
               messages : {
+                  'serie': {
+                      required: '<%=t.invoices.form.validations.serie_required%>',
+                  },
                   'invoice_type': {
                       required: '<%=t.invoices.form.validations.invoice_type_required%>',
                   },
@@ -518,9 +542,16 @@ require(["jquery", "YSDEntityManagement", 'YSDEntityManagementComplementHooks', 
                       required: '<%=t.invoices.form.validations.customer_required%>',
                   },
                   'date': {
+                      required: '<%=t.invoices.form.validations.date_required%>',
                       validDate: '<%=t.invoices.form.validations.date_invalid%>'
+                  },
+                  'payment_method': {
+                      required: '<%=t.invoices.form.validations.payment_method_required%>',
+                  },
+                  'expected_payment_date': {
+                     required: '<%=t.invoices.form.validations.expected_payment_date_required%>',
+                      validDate: '<%=t.invoices.form.validations.expected_payment_date_invalid%>'
                   }
-
               }
 
           });

@@ -217,7 +217,7 @@
   	                      <div class="form-group">
   	                         <label class="col-md-12"><%= t.invoices.form.date.label %></label>
   	                         <div class="col-md-12">
-  	                           <input type="text" maxlength="10" id="date" name="date" class="form-control" autocomplete="off" <%% if (entity) {%> value="<%%=entity.date%>" <%%}%> <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>/>
+  	                           <input type="text" maxlength="10" id="date" name="date" class="form-control" autocomplete="off" <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>/>
   	                         </div>
   	                      </div>
                         </div>
@@ -267,6 +267,33 @@
     	                      </div>	          
                           </div>
                       </div>    
+
+                      <!-- Payment method -->
+                      <div class="row">
+                        <div class="col-md-6">     
+
+                          <div class="form-group">
+                             <label class="col-md-12"><%= t.invoices.form.payment_method.label %></label>
+                             <div class="col-md-12">
+                               <select id="payment_method" name="payment_method" class="form-control"
+                                 <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>>
+                                 <option value="" <%%if (entity && (entity.payment_method == null || entity.payment_method == '')){%>selected<%%}%>><%=t.invoices.form.payment_method.no_source%></option>
+                                 <% @payment_methods.each do |payment_method, description| %>
+                                   <option value="<%=payment_method%>" <%% if (entity && entity.payment_method == '<%=payment_method%>') { %>selected<%%}%>><%=YsdPluginInvoices.r18n.t.invoices_payment_methods[payment_method]%></option>
+                                 <% end %>
+                               </select>
+                             </div>
+                          </div>     
+                        </div>
+                        <div class="col-md-6">                                    
+                          <div class="form-group">
+                             <label class="col-md-12"><%= t.invoices.form.expected_payment_date.label %></label>
+                             <div class="col-md-12">
+                               <input type="text" maxlength="10" id="expected_payment_date" name="expected_payment_date" class="form-control" autocomplete="off" <%% if (entity && entity.invoice_status == 'invoice') { %>disabled<%%}%>/>
+                             </div>
+                          </div>              
+                        </div>
+                      </div>     
 
                       <!-- Document reference -->
                       <div class="row">

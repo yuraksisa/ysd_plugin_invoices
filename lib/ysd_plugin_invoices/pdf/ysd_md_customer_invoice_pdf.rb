@@ -203,12 +203,24 @@ module Yito
             #
             # Notes
             #
+            economic_data = ""
+            economic_data << if customer_invoice.payment_method 
+                               "#{YsdPluginInvoices.r18n.t.invoices.pdf.payment_method.upcase}: <b>#{YsdPluginInvoices.r18n.t.invoices_payment_methods[customer_invoice.payment_method].upcase}</b>\n"
+                             else
+                               "#{YsdPluginInvoices.r18n.t.invoices.pdf.payment_method.upcase}:\n"
+                             end   
+            economic_data << if customer_invoice.expected_payment_date
+                               "#{YsdPluginInvoices.r18n.t.invoices.pdf.expected_payment_date.upcase}: <b>#{customer_invoice.expected_payment_date.strftime('%d/%m/%Y')}</b>\n"
+                             else
+                               "#{YsdPluginInvoices.r18n.t.invoices.pdf.expected_payment_date.upcase}:"
+                             end                                
+
             table_data = []
             table_data << [
                          "<b>#{YsdPluginInvoices.r18n.t.invoices.pdf.economic_data.upcase}</b>",
                          "<b>#{YsdPluginInvoices.r18n.t.invoices.pdf.notes.upcase}</b>"]
             table_data << [
-                         '',#{}"#{YsdPluginInvoices.r18n.t.invoices.pdf.payment_method.upcase}",
+                         economic_data,
                          customer_invoice.notes
                         ]                    
 
@@ -216,8 +228,8 @@ module Yito
             pdf.table(table_data, position: :center, width: 560, cell_style: {inline_format: true}) do |t| 
               t.row(0).background_color = 'eeeeee'
               t.row(1).style(height: 40)
-              t.column(0).style(:align => :left, size: 10, width: 160) 
-              t.column(1).style(:align => :left, size: 10, width: 400)
+              t.column(0).style(:align => :left, size: 10, width: 200) 
+              t.column(1).style(:align => :left, size: 10, width: 360)
               t.row(1).style(size: 8)       
               t.row(0).column(0).style(align: :center)
               t.row(0).column(1).style(align: :center)              

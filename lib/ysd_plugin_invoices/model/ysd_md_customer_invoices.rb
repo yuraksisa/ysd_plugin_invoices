@@ -60,6 +60,14 @@ module Yito
           customer_invoice.copy_customer_data if customer_invoice.customer
         end            
 
+        def self.payment_methods
+          {cash: YsdPluginInvoices.r18n.t.invoices_payment_methods.cash,
+           bank_transfer: YsdPluginInvoices.r18n.t.invoices_payment_methods.bank_transfer,
+           credit_card: YsdPluginInvoices.r18n.t.invoices_payment_methods.credit_card,
+           check: YsdPluginInvoices.r18n.t.invoices_payment_methods.check,
+           promissory_note: YsdPluginInvoices.r18n.t.invoices_payment_methods.promissory_note}
+        end
+
         # 
         # Copy customer data into the invoice
         #

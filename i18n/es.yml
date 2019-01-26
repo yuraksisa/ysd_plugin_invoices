@@ -42,6 +42,11 @@ invoices:
       no_source: Seleccionar tipo documento      
     reference: 
       label: Referencia
+    payment_method:
+      label: Forma de pago
+      no_source: Seleccionar forma de pago
+    expected_payment_date:
+      label: Fecha prevista de pago  
     invoice_line_table:
       concept: Concepto
       quantity: Cantidad
@@ -100,9 +105,14 @@ invoices:
     email_sent_error: Error enviando el correo electrónico
     validations:
       errors_summary: El formulario contiene errores. Por favor, revíselos
+      serie_required: Debe seleccionar el número de serie
       invoice_type_required: Debe seleccionar el tipo (abono o factura)
       customer_required: Debe seleccionar el cliente
       date_invalid: La fecha no es válida
+      date_required: Debe seleccionar la fecha
+      payment_method_required: Debe seleccionar la forma de pago
+      expected_payment_date_date_invalid: La fecha no es válida
+      expected_payment_date_required: Debe seleccionar la fecha
     notes:
       group: Notas
       label: Anotaciones         
@@ -124,6 +134,7 @@ invoices:
     total: Total
     economic_data: Datos económicos
     payment_method: Forma de pago
+    expected_payment_date: Fecha prevista
     notes: Observaciones
     footer: De acuerdo con la nueva ley de Servicios de la Sociedad de la Información y Comercio Electrónico aprobada por el parlamento español y de la vigente Ley Orgánica 15 13/12/1999 de Protección de Datos
   status:
@@ -178,4 +189,10 @@ invoices_newsfeed:
   added_invoice_charge: Registrado cobro %1 (forma de pago %2)
   destroyed_invoice_charge: Eliminado cobro %1 (forma de pago %2)
 invoices_pdf:
-  draft: Borrador  
+  draft: Borrador
+invoices_payment_methods:
+  cash: Efectivo
+  bank_transfer: Transferencia
+  credit_card: Tarjeta
+  check: Cheque
+  promissory_note: Pagaré    
