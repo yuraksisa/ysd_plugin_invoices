@@ -46,7 +46,7 @@ invoices:
       label: Forma de pago
       no_source: Seleccionar forma de pago
     expected_payment_date:
-      label: Fecha prevista de pago  
+      label: Fecha prevista pago  
     invoice_line_table:
       concept: Concepto
       quantity: Cantidad
@@ -134,7 +134,7 @@ invoices:
     total: Total
     economic_data: Datos económicos
     payment_method: Forma de pago
-    expected_payment_date: Fecha prevista
+    expected_payment_date: Vencimiento
     notes: Observaciones
     footer: De acuerdo con la nueva ley de Servicios de la Sociedad de la Información y Comercio Electrónico aprobada por el parlamento español y de la vigente Ley Orgánica 15 13/12/1999 de Protección de Datos
   status:
